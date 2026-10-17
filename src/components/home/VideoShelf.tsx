@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
-import { Play } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 
-import type { Dictionary } from "@/lib/i18n";
+import type { Dictionary, Lang } from "@/lib/i18n";
 import type { VideoRow } from "@/server/videos";
 
 /*
@@ -19,16 +20,56 @@ import type { VideoRow } from "@/server/videos";
   спроса раздражают, а у нас страница про доверие.
 */
 
-type Props = { dict: Dictionary; videos: VideoRow[] };
+type Props = {
+  dict: Dictionary;
+  videos: VideoRow[];
+  /** Язык нужен только ссылке «все ролики» — на самой этой странице её нет. */
+  lang?: Lang;
+  /*
+    Как раскладывать. На главной это лента с прокруткой вбок, на странице
+    роликов — обычная сетка с переносом: там ролики не идут приложением к
+    разделу, они и есть содержимое страницы.
+  */
+  layout?: "shelf" | "grid";
+};
 
-export default function VideoShelf({ dict, videos }: Props) {
+export default function VideoShelf({ dict, videos, lang, layout = "shelf" }: Props) {
   const words = dict.home;
   if (videos.length === 0) return null;
+
+  const grid = layout === "grid";
+
+  const list = grid ? (
+    <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
+      {videos.map((video) => (
+        <li key={video.id}>
+          <Card video={video} title={video.title} playLabel={words.videoPlay} />
+        </li>
+      ))}
+    </ul>
+  ) : null;
+
+  if (grid) return list;
 
   return (
     <section className="border-t border-line bg-surface">
       <div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-24">
-        <h2 className="text-2xl lg:text-3xl">{words.videoTitle}</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+          <h2 className="text-2xl lg:text-3xl">{words.videoTitle}</h2>
+
+          {/* Полка показывает не всё: ролики кончаются там же, где экран.
+              Ссылка ведёт туда, где они лежат целиком. */}
+          {lang ? (
+            <Link
+              href={`/${lang}/videos`}
+              className="inline-flex items-center gap-1 text-base text-signal hover:underline"
+            >
+              {words.videoAll}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          ) : null}
+        </div>
+
         <p className="mt-2 max-w-prose text-muted">{words.videoLead}</p>
 
         {/* Прокрутка вбок, а не перенос: иначе на планшете последний ролик

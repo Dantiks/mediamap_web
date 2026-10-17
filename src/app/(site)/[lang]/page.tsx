@@ -54,7 +54,12 @@ export default async function HomePage({
 
   return (
     <>
-      <Hero dict={dict} lang={lang} latest={data.cases.slice(0, 3)} />
+      <Hero
+        dict={dict}
+        lang={lang}
+        latest={data.cases.slice(0, 3)}
+        videos={videos}
+      />
 
       <Stats
         dict={dict}
@@ -70,7 +75,7 @@ export default async function HomePage({
 
       <HowItWorks dict={dict} />
 
-      <VideoShelf dict={dict} videos={videos} />
+      <VideoShelf dict={dict} lang={lang} videos={videos} />
 
       <CaseFeed
         dict={dict}

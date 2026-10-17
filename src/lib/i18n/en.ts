@@ -77,6 +77,11 @@ const en = {
     videoTitle: "How not to get caught",
     videoLead: "Short clips: how to spot a scam, a fake and hate speech.",
     videoPlay: "Watch",
+    videoAll: "All clips",
+    videoSoundOn: "Turn the sound on",
+    videoSoundOff: "Turn the sound off",
+    videoPrev: "Previous clip",
+    videoNext: "Next clip",
 
     newsTitle: "Media digest",
     newsLead: "We follow what the specialist outlets publish.",
@@ -573,6 +578,14 @@ const en = {
     cancel: "Cancel",
     show: "Show the photo",
     hidden: "Photo hidden: it contains a QR code",
+  },
+
+  videosPage: {
+    title: "Clips",
+    lead:
+      "Short explainers: how to spot a scam, a fake and hate speech. Clips " +
+      "differ by language — a voiced clip cannot be translated.",
+    empty: "No clips in this language yet.",
   },
 
   a11y: {
