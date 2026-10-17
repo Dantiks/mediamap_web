@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Volume2,
+  VolumeX,
+} from "lucide-react";
 
 import type { Dictionary, Lang } from "@/lib/i18n";
 import type { VideoRow } from "@/server/videos";
@@ -38,7 +45,11 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
   const words = dict.home;
   const [current, setCurrent] = useState(0);
   const [muted, setMuted] = useState(true);
+  const [playing, setPlaying] = useState(false);
+  /** Доля просмотренного, 0…1. Своя полоса перемотки держится на ней. */
+  const [progress, setProgress] = useState(0);
   const player = useRef<HTMLVideoElement>(null);
+  const track = useRef<HTMLDivElement>(null);
 
   const video = videos[current];
 
@@ -62,6 +73,40 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
 
   const step = (delta: number) =>
     setCurrent((index) => (index + delta + videos.length) % videos.length);
+
+  const toggle = () => {
+    const element = player.current;
+    if (!element) return;
+    if (element.paused) void element.play().catch(() => {});
+    else element.pause();
+  };
+
+  /*
+    Перемотка по своей полосе.
+
+    Считаем долю от ширины дорожки и в неё же переводим время. Тянуть
+    можно и за пределами полосы: палец на перемотке редко идёт ровно, а
+    обрывать её на краю — значит ронять позицию на случайном кадре.
+  */
+  const seekTo = (clientX: number) => {
+    const element = player.current;
+    const line = track.current;
+    if (!element || !line || !element.duration) return;
+
+    const box = line.getBoundingClientRect();
+    const share = Math.min(1, Math.max(0, (clientX - box.left) / box.width));
+    element.currentTime = share * element.duration;
+    setProgress(share);
+  };
+
+  const nudge = (seconds: number) => {
+    const element = player.current;
+    if (!element || !element.duration) return;
+    element.currentTime = Math.min(
+      element.duration,
+      Math.max(0, element.currentTime + seconds),
+    );
+  };
 
   return (
     /*
@@ -104,17 +149,92 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
             poster={video.hasPoster ? `/api/videos/${video.id}?poster` : undefined}
             muted={muted}
             playsInline
-            controls
             preload="metadata"
-            onEnded={() => step(1)}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onTimeUpdate={(event) => {
+              const element = event.currentTarget;
+              setProgress(
+                element.duration ? element.currentTime / element.duration : 0,
+              );
+            }}
+            onEnded={() => {
+              setProgress(0);
+              step(1);
+            }}
             /* Рамка уже той же формы, что и кадр, поэтому contain ничего
                не обрежет, но подстрахует от роликов с неизвестными
                размерами: их мы считаем вертикальными. */
             className="h-full w-full object-contain"
           />
 
-          {/* Кнопка звука — поверх кадра, в углу, подальше от стандартных
-              элементов плеера внизу. */}
+          {/*
+            Нажатие по кадру — пуск и пауза, как в любой ленте. Это кнопка,
+            а не слой с обработчиком: с клавиатуры до неё тоже надо
+            добираться.
+          */}
+          <button
+            type="button"
+            onClick={toggle}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            {/* Пока идёт — поверх кадра ничего не рисуем. Кружок с
+                треугольником нужен ровно тогда, когда ролик стоит. */}
+            {playing ? null : (
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/90">
+                <Play className="ml-0.5 h-6 w-6 text-ink" aria-hidden="true" />
+              </span>
+            )}
+            <span className="sr-only">
+              {playing ? words.videoPause : words.videoPlay}: {video.title}
+            </span>
+          </button>
+
+          {/*
+            Своя полоса перемотки вместо встроенного плеера.
+
+            Встроенные элементы управления — чёрная панель во всю ширину с
+            чужими иконками, и выглядит она как вставленный в страницу
+            чужой проигрыватель. Здесь от плеера остаётся одна линия: она
+            показывает, сколько осталось, и по ней же перематывают.
+
+            Дорожка толще самой линии и не видна: попасть пальцем в две
+            точки толщины невозможно, а в двенадцать — легко.
+          */}
+          <div
+            ref={track}
+            role="slider"
+            tabIndex={0}
+            aria-label={words.videoSeek}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(progress * 100)}
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+              seekTo(event.clientX);
+            }}
+            onPointerMove={(event) => {
+              if (event.buttons === 1) seekTo(event.clientX);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight") nudge(5);
+              else if (event.key === "ArrowLeft") nudge(-5);
+              else if (event.key === " " || event.key === "Enter") toggle();
+              else return;
+              event.preventDefault();
+            }}
+            className="absolute inset-x-0 bottom-0 flex h-3 cursor-pointer touch-none items-end focus:outline-none"
+          >
+            <div className="h-[3px] w-full bg-surface/30">
+              <div
+                className="h-full bg-signal transition-[width] duration-150 ease-linear"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Кнопка звука — поверх кадра, в углу, подальше от полосы
+              перемотки внизу. */}
           <button
             type="button"
             onClick={() => setMuted((value) => !value)}

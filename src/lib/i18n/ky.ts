@@ -73,6 +73,8 @@ const ky: typeof ru = {
     videoAll: "Бардык роликтер",
     videoSoundOn: "Үндү күйгүзүү",
     videoSoundOff: "Үндү өчүрүү",
+    videoPause: "Тындыруу",
+    videoSeek: "Артка-алдыга жылдыруу",
     videoPrev: "Мурунку ролик",
     videoNext: "Кийинки ролик",
 

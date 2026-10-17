@@ -80,6 +80,8 @@ const en = {
     videoAll: "All clips",
     videoSoundOn: "Turn the sound on",
     videoSoundOff: "Turn the sound off",
+    videoPause: "Pause",
+    videoSeek: "Seek",
     videoPrev: "Previous clip",
     videoNext: "Next clip",
 

@@ -86,6 +86,8 @@ const ru = {
     videoAll: "Все ролики",
     videoSoundOn: "Включить звук",
     videoSoundOff: "Выключить звук",
+    videoPause: "Пауза",
+    videoSeek: "Перемотка",
     videoPrev: "Предыдущий ролик",
     videoNext: "Следующий ролик",
 
