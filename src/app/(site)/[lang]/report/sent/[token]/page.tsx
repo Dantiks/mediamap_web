@@ -155,6 +155,7 @@ export default async function SentPage({
             overridden={receipt.overridden}
             terminology={receipt.terminology}
             basis={receipt.basis}
+            markers={receipt.ai.markers}
             hasLink={Boolean(receipt.link)}
             assessment={{
               verdict: receipt.ai.verdict as Verdict,

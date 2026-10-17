@@ -254,6 +254,15 @@ export async function submitReport(
     aiExtractedText: assessment.details?.extractedText || null,
     // Рекомендация по терминологии. Не часть вердикта — своя колонка.
     aiTerminology: assessment.details?.terminology || null,
+    // За что зацепилась модель и под какую статью это может подпадать.
+    // Пусто — значит не нашла; пустой список и «не спрашивали» мы не
+    // различаем, и различать незачем: показывать нечего в обоих случаях.
+    aiMarkers: assessment.details?.markers.length
+      ? JSON.stringify(assessment.details.markers)
+      : null,
+    aiLaw: assessment.details?.law
+      ? JSON.stringify(assessment.details.law)
+      : null,
     // По чему судили. Заявителю это говорят на странице прямым текстом.
     aiBasis: run.basis,
     // Личный ключ страницы «принято». Случайный, потому что номер

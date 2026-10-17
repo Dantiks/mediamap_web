@@ -237,6 +237,7 @@ export default async function CasePage({
               reviewed
               terminology={item.terminology}
               basis={item.basis}
+              markers={item.ai.markers}
               hasLink={Boolean(item.link)}
               assessment={{
                 verdict: item.ai.verdict as Verdict,

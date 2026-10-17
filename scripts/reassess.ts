@@ -91,6 +91,10 @@ async function main(): Promise<void> {
         : null,
       aiExtractedText: assessment.details?.extractedText || null,
       aiTerminology: assessment.details?.terminology || null,
+      aiMarkers: assessment.details?.markers.length
+        ? JSON.stringify(assessment.details.markers)
+        : null,
+      aiLaw: assessment.details?.law ? JSON.stringify(assessment.details.law) : null,
       aiBasis: run.basis,
     },
   });

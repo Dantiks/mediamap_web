@@ -311,6 +311,29 @@ const en = {
     adminRejected: "Not confirmed",
 
     reasonsLabel: "What the conclusion rests on",
+    adviceTitle: "What to do",
+    advice: {
+      "digital-fraud": [
+        "Do not open the link from the message and do not type anything on the page it leads to.",
+        "Never give anyone the code from an SMS, a PIN or the three digits on the back of a card. A bank does not ask for them.",
+        "Do not move money to a “safe account” and do not pay in advance for a payout, a job or a prize.",
+        "If you have already sent money or entered card details, call the bank and block the card, then go to the police.",
+        "Keep the messages and screenshots: without them a complaint is hard to act on.",
+      ],
+      "hate-speech": [
+        "Do not answer in kind: hitting back turns the target into a participant.",
+        "Report the post to the platform itself — social networks have a button for it.",
+        "Keep a screenshot with the link and the date: such posts are often deleted.",
+        "If there is a threat to life or health, go to the police.",
+      ],
+      disinformation: [
+        "Do not pass the post on until it has been checked.",
+        "Look for the same story in outlets that name their source.",
+        "Check the date: old events are often served as today’s news.",
+        "Run a reverse image search — the picture may come from another event.",
+      ],
+    },
+    markersTitle: "What points to it",
     terminologyLabel: "A note on terminology",
     terminologyText:
       "The term “invalid” puts a diagnosis or a limitation first and defines a person above all through their health condition. The phrase “person with a disability” follows the principles of person-first language: the person comes first, then their characteristic, and it stresses that disability is only one of many traits of a personality, not its whole essence. This is in line with current international standards, including UN terminology and the recommendations of human rights organisations representing people with disabilities. This approach helps to counter stigma and stereotypes and to reduce the perception of a person as an “object of pity” or as “inferior”. Using this phrase also respects the self-identification of people with disabilities themselves, many of whom prefer exactly this terminology. We recommend using the correct term “person/people with a disability”.",

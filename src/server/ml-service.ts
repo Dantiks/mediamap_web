@@ -34,6 +34,20 @@ export type TypeCheck = {
   explanation: string;
 };
 
+/** Статья закона, под которую случай может подпадать. */
+export type MlLaw = {
+  articleId: string;
+  /** Как называть человеку: «ст. 330 УК КР». */
+  label: string;
+  title: string;
+  act: string;
+  /** Какие признаки состава модель увидела в тексте. */
+  why: string;
+  confidence: number;
+  /** Состояние сверки самой статьи: пока черновик — наружу не показываем. */
+  checked: string;
+};
+
 export type MlVerdict = {
   slug: ViolationSlug | "unclear";
   confidence: number;
@@ -56,6 +70,14 @@ export type MlVerdict = {
   modelVersion: string;
   /** Текст, извлечённый из ссылки или картинки. */
   extractedText: string | null;
+  /*
+    За что зацепилась модель: цитаты из разбираемого текста с пояснением.
+    У мошенничества это markers, у языка вражды — key_words; для нас это одно
+    и то же, поэтому здесь они сведены в один список.
+  */
+  markers: string[];
+  /** Статья закона или null. См. MlLaw. */
+  law: MlLaw | null;
   /**
    * Рекомендация по терминологии.
    *
@@ -106,6 +128,17 @@ type ClassifyResponse = {
   model_version: string;
   extracted_text: string | null;
   terminology?: string | null;
+  markers?: string[] | null;
+  key_tokens?: string[] | null;
+  law?: {
+    article_id: string;
+    label: string;
+    title: string;
+    act: string;
+    why: string;
+    confidence: number;
+    checked: string;
+  } | null;
   checks?: Record<string, { found: boolean; confidence: number; explanation: string }>;
 };
 
@@ -261,6 +294,23 @@ function toVerdict(body: ClassifyResponse): MlVerdict {
     modelVersion: body.model_version ?? "",
     extractedText: body.extracted_text,
     terminology: body.terminology ?? null,
+    // Приметы и слова-драйверы — об одном и том же, но приходят от разных
+    // голов. Повторы снимаем: при смене головы одна и та же цитата иногда
+    // приезжает в обоих полях.
+    markers: [
+      ...new Set([...(body.markers ?? []), ...(body.key_tokens ?? [])]),
+    ].filter(Boolean),
+    law: body.law
+      ? {
+          articleId: body.law.article_id,
+          label: body.law.label,
+          title: body.law.title,
+          act: body.law.act,
+          why: body.law.why ?? "",
+          confidence: clamp(body.law.confidence),
+          checked: body.law.checked ?? "",
+        }
+      : null,
     checks: toChecks(body.checks),
   };
 }

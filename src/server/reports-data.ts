@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { markersOf } from "@/lib/highlight";
 import { REPORT_STATUS, type ReportStatus } from "@/lib/enums";
 import { hostFromUrl } from "@/lib/format";
 import { parseChecks } from "./case-data";
@@ -46,6 +47,10 @@ export type ReportRow = {
   reviewSummary: string | null;
   /** Текст, который модель списала с приложенной картинки. */
   aiExtractedText: string | null;
+  /** Цитаты, за которые зацепилась модель. По ним же подсвечиваем текст. */
+  markers: string[];
+  /** Статья закона, под которую случай может подпадать. Null — не нашлось. */
+  law: ReportLaw | null;
   /**
    * Ответ модели по каждому виду в отдельности.
    *
@@ -79,6 +84,37 @@ export type ReportRow = {
     qrSummary: string | null;
   }[];
 };
+
+/** Статья закона в том виде, в каком её читает проверяющий. */
+export type ReportLaw = {
+  label: string;
+  title: string;
+  act: string;
+  why: string;
+  confidence: number;
+  /** Состояние сверки статьи юристом. Пока черновик — наружу не отдаём. */
+  checked: string;
+};
+
+/** Разбор сохранённой статьи. Кривую запись считаем отсутствующей. */
+function parseLaw(raw: string | null): ReportLaw | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Partial<ReportLaw> | null;
+    return parsed && typeof parsed.label === "string"
+      ? {
+          label: parsed.label,
+          title: parsed.title ?? "",
+          act: parsed.act ?? "",
+          why: parsed.why ?? "",
+          confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0,
+          checked: parsed.checked ?? "",
+        }
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export type Filter = {
   status: ReportStatus | "ALL";
@@ -229,6 +265,8 @@ function toRow(row: {
   reviewSummary: string | null;
   aiExtractedText: string | null;
   aiTypeChecks: string | null;
+  aiMarkers: string | null;
+  aiLaw: string | null;
   violationType: { slug: string };
   reviewedBy: { name: string | null; email: string } | null;
   attachments: {
@@ -273,6 +311,8 @@ function toRow(row: {
     reviewConfidence: row.reviewConfidence,
     reviewSummary: row.reviewSummary,
     aiExtractedText: row.aiExtractedText,
+    markers: markersOf(row.aiMarkers),
+    law: parseLaw(row.aiLaw),
     checks: parseChecks(row.aiTypeChecks),
     claim: check?.claim ?? null,
     factVerdict: check?.factVerdict ?? null,

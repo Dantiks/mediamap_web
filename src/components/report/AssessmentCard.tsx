@@ -47,6 +47,8 @@ type Props = {
   overridden?: boolean;
   /** По чему судила модель: снимок, ссылка или пересказ заявителя. */
   basis?: "image" | "link" | "story";
+  /** Цитаты, за которые зацепилась модель. Пусто — блока не будет. */
+  markers?: string[];
   /** Заявитель оставил ссылку — про неё нужна отдельная оговорка. */
   hasLink?: boolean;
   /**
@@ -107,6 +109,7 @@ export default function AssessmentCard({
   terminology,
   reviewSummary,
   basis = "story",
+  markers = [],
   hasLink = false,
   audience = "author",
 }: Props) {
@@ -157,6 +160,17 @@ export default function AssessmentCard({
     : (violationText(dict, assessment.verdict)?.name ?? assessment.verdict);
 
   const matchesChoice = assessment.verdict === chosenType;
+
+  /*
+    Советы берём по тому виду, который определила модель, а не по выбранному
+    заявителем: человек мог ошибиться в выборе, и советовать ему по
+    несуществующему нарушению незачем. Вид не определён — советов нет.
+  */
+  const advice: string[] = isUnclear
+    ? []
+    : ((words.advice as Record<string, string[] | undefined>)[
+        assessment.verdict
+      ] ?? []);
 
   /*
     Обоснование берём по выбранному виду, а общее — только если такого нет.
@@ -304,6 +318,54 @@ export default function AssessmentCard({
           <p className="mt-3 max-w-prose text-base">
             {lang ? <Translated text={explanation} lang={lang} lines={3} /> : explanation}
           </p>
+        </div>
+      ) : null}
+
+      {/*
+        За что зацепилась модель. Отдельно от разбора словами: разбор
+        объясняет вывод, а это — то, что можно проверить глазами, не веря
+        на слово. Перевод тот же, что у остального: модель отвечает
+        по-английски.
+      */}
+      {markers.length > 0 ? (
+        <div className="border-t border-line px-6 py-5">
+          <p className="text-sm text-muted">{words.markersTitle}</p>
+          <ul className="mt-3 max-w-prose space-y-1.5 text-base">
+            {markers.map((marker) => (
+              <li key={marker} className="flex gap-2">
+                <span aria-hidden="true" className="text-muted">
+                  ·
+                </span>
+                <span>
+                  {lang ? <Translated text={marker} lang={lang} /> : marker}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {/*
+        Что делать. Тексты наши и заранее написанные — см. словарь. Показываем
+        только когда вид определён: советовать «не переходите по ссылке» тому,
+        у кого вид не определён, значит пугать наугад.
+
+        Стоит после разбора, а не перед: сначала человек узнаёт, что это, и
+        только потом — что с этим делать.
+      */}
+      {advice.length > 0 ? (
+        <div className="border-t border-line bg-paper px-6 py-5">
+          <p className="text-sm text-muted">{words.adviceTitle}</p>
+          <ul className="mt-3 max-w-prose space-y-2 text-base">
+            {advice.map((line) => (
+              <li key={line} className="flex gap-2">
+                <span aria-hidden="true" className="text-signal">
+                  →
+                </span>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
 

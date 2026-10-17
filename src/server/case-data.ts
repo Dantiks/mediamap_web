@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { markersOf } from "@/lib/highlight";
 import { REPORT_STATUS } from "@/lib/enums";
 import { hostFromUrl } from "@/lib/format";
 import type { ViolationSlug } from "@/lib/i18n";
@@ -70,6 +71,8 @@ export type CaseAssessment = {
   explanation: string | null;
   source: "rules" | "model";
   checks: Partial<Record<ViolationSlug, TypeCheck>>;
+  /** Цитаты, за которые зацепилась модель. Пусто — показывать нечего. */
+  markers: string[];
 };
 
 export const PER_PAGE = 20;
@@ -220,6 +223,7 @@ function assessmentOf(row: {
   aiSummary: string | null;
   aiSource: string | null;
   aiTypeChecks: string | null;
+  aiMarkers: string | null;
   reviewVerdict: string | null;
   reviewConfidence: number | null;
   reviewSummary: string | null;
@@ -242,6 +246,9 @@ function assessmentOf(row: {
       row.reviewSummary ?? (row.aiSource === "model" ? row.aiSummary : null),
     source: row.aiSource === "model" ? "model" : "rules",
     checks: parseChecks(row.aiTypeChecks),
+    // Приметы показываем только там, где стоит ответ модели. Поверх решения
+    // человека они бы врали: он мог не согласиться именно с ними.
+    markers: row.reviewSummary ? [] : markersOf(row.aiMarkers),
   };
 }
 
@@ -297,6 +304,8 @@ export type Receipt = {
     /** Обоснование словами — только у модели. */
     explanation: string | null;
     source: "rules" | "model";
+    /** Цитаты, за которые зацепилась модель. Пусто — показывать нечего. */
+    markers: string[];
     /*
       Что модель ответила по каждому виду. Пусто у разбора по словам и у
       старых записей, снятых до появления этого поля, — страница должна
@@ -372,6 +381,7 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
               row.reviewSummary ?? (row.aiSource === "model" ? row.aiSummary : null),
             source: row.aiSource === "model" ? "model" : "rules",
             checks: parseChecks(row.aiTypeChecks),
+            markers: row.reviewSummary ? [] : markersOf(row.aiMarkers),
           }
         : null,
   };
