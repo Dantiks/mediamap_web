@@ -81,10 +81,22 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
       </div>
 
       <div className="px-6 py-5">
-        {/* Высота кадра одна у всех роликов, меняется только то, как кадр
-            в неё вписан: вертикальный заполняет, широкий вписывается
-            целиком. Иначе при переключении карточка прыгала бы. */}
-        <div className="relative mx-auto aspect-[9/16] max-h-[26rem] overflow-hidden rounded-xs bg-deep">
+        {/*
+          Рамка повторяет форму самого ролика: горизонтальный идёт 16:9,
+          вертикальный — 9:16.
+
+          Сначала рамка у всех была вертикальной, как у рилса, а широкий
+          ролик вписывался в неё целиком. Выходил кадр в половину ладони
+          между двумя чёрными полями — ровно то, чего ждёшь от чужого
+          плеера, а не от своего. Высота карточки теперь при переключении
+          меняется, и это меньшее из двух зол: лучше прыжок на стыке
+          роликов, чем постоянные поля вокруг каждого широкого.
+        */}
+        <div
+          className={`relative mx-auto overflow-hidden rounded-xs bg-deep ${
+            video.wide ? "aspect-video w-full" : "aspect-[9/16] max-h-[26rem]"
+          }`}
+        >
           <video
             ref={player}
             key={video.id}
@@ -95,7 +107,10 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
             controls
             preload="metadata"
             onEnded={() => step(1)}
-            className={`h-full w-full ${video.wide ? "object-contain" : "object-cover"}`}
+            /* Рамка уже той же формы, что и кадр, поэтому contain ничего
+               не обрежет, но подстрахует от роликов с неизвестными
+               размерами: их мы считаем вертикальными. */
+            className="h-full w-full object-contain"
           />
 
           {/* Кнопка звука — поверх кадра, в углу, подальше от стандартных
