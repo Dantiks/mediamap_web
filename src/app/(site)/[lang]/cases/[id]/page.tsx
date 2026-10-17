@@ -18,6 +18,7 @@ import AssessmentCard from "@/components/report/AssessmentCard";
 import Translated from "@/components/report/Translated";
 import Attachments from "@/components/report/Attachments";
 import Marked from "@/components/report/Marked";
+import { hasMarks } from "@/lib/highlight";
 import { loadCase } from "@/server/case-data";
 import type { Verdict } from "@/server/ai-review";
 
@@ -224,7 +225,7 @@ export default async function CasePage({
 
                 {/* Подпись к подсветке: без неё цветные куски читаются как
                     случайное выделение, а не как работа модели. */}
-                {item.ai?.markers.length ? (
+                {hasMarks(item.authorComment, item.ai?.markers ?? []) ? (
                   <span className="mt-3 block text-xs text-muted">
                     {dict.assessment.markersTitle}
                   </span>

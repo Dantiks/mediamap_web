@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 import AssessmentCard from "@/components/report/AssessmentCard";
 import Marked from "@/components/report/Marked";
+import { hasMarks } from "@/lib/highlight";
 import Attachments from "@/components/report/Attachments";
 import RememberReceipt from "@/components/report/RememberReceipt";
 import { currentUser } from "@/lib/auth";
@@ -123,7 +124,7 @@ export default async function SentPage({
               className="mt-2 max-w-prose whitespace-pre-line"
             />
 
-            {receipt.ai?.markers.length ? (
+            {hasMarks(receipt.story, receipt.ai?.markers ?? []) ? (
               <p className="mt-2 text-xs text-muted">
                 {dict.assessment.markersTitle}
               </p>
