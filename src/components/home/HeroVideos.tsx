@@ -110,10 +110,16 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
 
   return (
     /*
-      На телефоне карусели нет: первый экран там и так занят заголовком,
-      кнопкой и числами, а полка роликов стоит ниже отдельным разделом.
+      На телефоне карусель тоже показываем, и это осознанная уступка.
+
+      Раньше её здесь не было: первый экран на телефоне и так занят
+      заголовком, кнопкой и числами, а ниже стояла отдельная полка
+      роликов. Полку по решению проекта убрали — ролики живут только в
+      этом месте, — и прятать карусель на телефоне стало значить «на
+      телефоне роликов нет вовсе». Она встаёт под текстом, то есть числа
+      статистики отодвигает, но не перекрывает.
     */
-    <aside className="hidden border border-line bg-surface lg:block">
+    <aside className="border border-line bg-surface">
       <div className="flex items-baseline justify-between gap-4 border-b border-line px-6 py-4">
         <h2 className="eyebrow">{words.videoTitle}</h2>
         <Link

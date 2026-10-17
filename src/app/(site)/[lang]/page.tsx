@@ -6,7 +6,6 @@ import CaseFeed from "@/components/home/CaseFeed";
 import ViolationTypes from "@/components/home/ViolationTypes";
 import NewsList from "@/components/home/NewsList";
 import HowItWorks from "@/components/home/HowItWorks";
-import VideoShelf from "@/components/home/VideoShelf";
 import ReportCta from "@/components/home/ReportCta";
 import Partners from "@/components/site/Partners";
 import { isReadyLanguage } from "@/lib/i18n";
@@ -74,8 +73,6 @@ export default async function HomePage({
       <ReportCta dict={dict} lang={lang} />
 
       <HowItWorks dict={dict} />
-
-      <VideoShelf dict={dict} lang={lang} videos={videos} />
 
       <CaseFeed
         dict={dict}
