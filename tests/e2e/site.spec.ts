@@ -80,6 +80,7 @@ test.describe("поиск", () => {
 });
 
 test.describe("мобильная ширина", () => {
+  // 360 — самый частый Android. /analytics раньше был шире 386 px.
   test.use({ viewport: { width: 360, height: 780 } });
 
   const pages = [
@@ -97,18 +98,8 @@ test.describe("мобильная ширина", () => {
     "/ru/account/login",
   ];
 
-  /*
-    БАГ. /analytics шире 360 px: помесячные столбики (components/analytics/
-    Bars.tsx) — двенадцать flex-1 с подписями, и без min-w-0 они не
-    сжимаются уже 386 px. На iPhone SE / mini (375) и большинстве Android
-    (360) страница ездит вбок. Помечено test.fail: когда исправят, тест
-    упадёт — убрать путь из этого списка.
-  */
-  const KNOWN_OVERFLOW = new Set(["/ru/analytics"]);
-
   for (const path of pages) {
     test(`без горизонтальной прокрутки: ${decodeURIComponent(path)}`, async ({ page }) => {
-      test.fail(KNOWN_OVERFLOW.has(path), "известный баг: Bars.tsx шире экрана");
       await page.goto(path);
       await page.waitForLoadState("networkidle");
       const overflow = await page.evaluate(() => {

@@ -14,11 +14,21 @@ import {
   registerSchema,
 } from "@/lib/account-schema";
 import { isStaff } from "@/lib/enums";
+import { langOrDefault } from "@/lib/i18n/languages";
 
 // Аккаунт заявителя. Дело добровольное: анонимная подача остаётся основным
 // путём, аккаунт лишь даёт историю сообщений на всех устройствах.
 
 export type AccountState = { error?: string; email?: string };
+
+/*
+  Кабинет на языке той страницы, с которой пришла форма.
+
+  Раньше переход был прибит к /ru/account, и человек, заведший аккаунт на
+  кыргызской версии — а она открывается по умолчанию, — оказывался в
+  русском кабинете. Язык форма передаёт скрытым полем.
+*/
+const accountHref = (form: FormData) => `/${langOrDefault(form.get("lang"))}/account`;
 
 const firstError = (issues: { message: string }[]) =>
   issues[0]?.message ?? ACCOUNT_ERRORS.wrong;
@@ -57,7 +67,7 @@ export async function register(
   });
 
   await startSession(user.id);
-  redirect("/ru/account");
+  redirect(accountHref(form));
 }
 
 export async function signInAccount(
@@ -85,7 +95,7 @@ export async function signInAccount(
   }
 
   await startSession(user.id);
-  redirect("/ru/account");
+  redirect(accountHref(form));
 }
 
 /**
@@ -166,9 +176,9 @@ export async function changePassword(
   return { done: true };
 }
 
-export async function signOutAccount(): Promise<void> {
+export async function signOutAccount(form: FormData): Promise<void> {
   await endSession();
-  redirect("/ru");
+  redirect(`/${langOrDefault(form.get("lang"))}`);
 }
 
 /**

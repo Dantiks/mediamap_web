@@ -40,6 +40,7 @@ export default async function AccountPage({
           </div>
 
           <form action={signOutAccount}>
+            <input type="hidden" name="lang" value={lang} />
             <button
               type="submit"
               className="inline-flex h-11 items-center rounded-xs border border-border px-5 text-sm transition-colors hover:bg-surface"

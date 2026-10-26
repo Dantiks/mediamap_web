@@ -110,13 +110,27 @@ const ENTITIES: Record<string, string> = {
   rdquo: "”",
 };
 
+/*
+  Номер, который можно превратить в символ.
+
+  Проверки на Number.isFinite было мало: «&#99999999;» проходил её, и
+  String.fromCodePoint бросал RangeError — одна такая мнемоника в заголовке
+  роняла разбор всей ленты, а в базе — страницу, где заголовок показан.
+  Ноль и половинки суррогатных пар символов не дают, их тоже не трогаем.
+*/
+const isCodePoint = (code: number): boolean =>
+  Number.isInteger(code) &&
+  code > 0 &&
+  code <= 0x10ffff &&
+  !(code >= 0xd800 && code <= 0xdfff);
+
 export const decodeEntities = (text: string): string =>
   text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, body: string) => {
     if (body.startsWith("#")) {
       const code = body[1]?.toLowerCase() === "x"
         ? Number.parseInt(body.slice(2), 16)
         : Number.parseInt(body.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : whole;
+      return isCodePoint(code) ? String.fromCodePoint(code) : whole;
     }
     return ENTITIES[body.toLowerCase()] ?? whole;
   });

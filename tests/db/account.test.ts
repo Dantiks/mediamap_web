@@ -38,7 +38,7 @@ beforeEach(async () => {
 describe("регистрация заявителя", () => {
   it("заводит REPORTER, входит и ведёт в кабинет", async () => {
     const url = await redirectOf(
-      register({}, form({ email: "Aigul@Example.kg", password: "надёжный-пароль" })),
+      register({}, form({ email: "Aigul@Example.kg", password: "надёжный-пароль", lang: "ru" })),
     );
     expect(url).toBe("/ru/account");
 
@@ -50,18 +50,33 @@ describe("регистрация заявителя", () => {
   });
 
   /*
-    БАГ. register и signInAccount всегда ведут на /ru/account, а
-    signOutAccount — на /ru: форма язык не передаёт, действие его не
-    спрашивает. Человек, зарегистрировавшийся на кыргызской или английской
-    версии, оказывается в кабинете на русском. Сайт по умолчанию открывается
-    на кыргызском — то есть так происходит с большинством.
-    Когда исправят — заменить it.fails на it.
+    Раньше register и signInAccount вели на /ru/account, а signOutAccount —
+    на /ru, с какой бы версии сайта ни пришла форма.
   */
-  it.fails("с кыргызской страницы ведёт в кабинет на кыргызском", async () => {
+  it("с кыргызской страницы ведёт в кабинет на кыргызском", async () => {
     const url = await redirectOf(
       register({}, form({ email: "ky@example.kg", password: "12345678", lang: "ky" })),
     );
     expect(url).toBe("/ky/account");
+  });
+
+  it("с английской — на английский", async () => {
+    const url = await redirectOf(
+      register({}, form({ email: "en@example.kg", password: "12345678", lang: "en" })),
+    );
+    expect(url).toBe("/en/account");
+  });
+
+  it("без языка или с чужим значением — на язык по умолчанию", async () => {
+    expect(
+      await redirectOf(register({}, form({ email: "x@example.kg", password: "12345678" }))),
+    ).toBe("/ky/account");
+    jar.clear();
+    expect(
+      await redirectOf(
+        register({}, form({ email: "y@example.kg", password: "12345678", lang: "//evil.example" })),
+      ),
+    ).toBe("/ky/account");
   });
 
   it("роль из формы игнорируется", async () => {
@@ -96,9 +111,9 @@ describe("вход заявителя", () => {
 
   it("с верным паролем входит", async () => {
     const url = await redirectOf(
-      signInAccount({}, form({ email: "USER@example.kg", password: "правильный" })),
+      signInAccount({}, form({ email: "USER@example.kg", password: "правильный", lang: "ky" })),
     );
-    expect(url).toBe("/ru/account");
+    expect(url).toBe("/ky/account");
     expect((await currentUser())?.email).toBe("user@example.kg");
   });
 
@@ -113,7 +128,7 @@ describe("вход заявителя", () => {
   it("выход закрывает сессию и в базе", async () => {
     await redirectOf(signInAccount({}, form({ email: "user@example.kg", password: "правильный" })));
     expect(await db.session.count()).toBe(1);
-    expect(await redirectOf(signOutAccount())).toBe("/ru");
+    expect(await redirectOf(signOutAccount(form({ lang: "en" })))).toBe("/en");
     expect(await db.session.count()).toBe(0);
     expect(await currentUser()).toBeNull();
   });

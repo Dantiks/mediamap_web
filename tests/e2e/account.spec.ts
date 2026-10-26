@@ -54,6 +54,18 @@ test("регистрация → кабинет → подача → истор�
   await expect(page.locator("main")).toContainText(publicId);
 });
 
+test("регистрация и выход на кыргызской версии остаются на кыргызском", async ({ page }) => {
+  await page.goto("/ky/account/register");
+  const register = page.locator("main form").first();
+  await register.locator('input[name="email"]').fill(email());
+  await register.locator('input[name="password"]').fill(PASSWORD);
+  await register.locator('button[type="submit"]').click();
+  await expect(page).toHaveURL(/\/ky\/account$/);
+
+  await page.locator("main form button[type=submit]").first().click();
+  await expect(page).toHaveURL(/\/ky$/);
+});
+
 test("кабинет без входа ведёт на страницу входа", async ({ page }) => {
   await page.goto("/ky/account");
   await expect(page).toHaveURL(/\/ky\/account\/login$/);

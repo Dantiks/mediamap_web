@@ -86,7 +86,7 @@ export default function AccountForm({
               // Обычная ссылка, а не форма: переход уводит на чужой сайт.
               <a
                 key={provider.id}
-                href={`/api/auth/${provider.id}`}
+                href={`/api/auth/${provider.id}?lang=${lang}`}
                 className="flex h-12 items-center justify-center rounded-xs border border-border px-6 text-base font-medium transition-colors hover:bg-surface"
               >
                 {page.withProvider} {provider.label}
@@ -103,6 +103,7 @@ export default function AccountForm({
       ) : null}
 
       <form action={action}>
+        <input type="hidden" name="lang" value={lang} />
         <div>
           <label htmlFor="email" className="text-base font-medium">
             {page.emailLabel}
