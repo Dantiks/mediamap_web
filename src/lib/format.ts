@@ -10,13 +10,23 @@ const LOCALES: Record<Lang, string> = { ru: "ru-RU", ky: "ky-KG", en: "en-GB" };
 const TIME_ZONE = "Asia/Bishkek";
 
 /** Дата в виде 06.11.2024. */
-export const formatDate = (date: Date, lang: Lang): string =>
-  new Intl.DateTimeFormat(LOCALES[lang], {
+export const formatDate = (date: Date, lang: Lang): string => {
+  const format = new Intl.DateTimeFormat(LOCALES[lang], {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
     timeZone: TIME_ZONE,
-  }).format(date);
+  });
+  if (lang !== "ky") return format.format(date);
+
+  // Для ky-KG браузеры и Node собирают «2026-26-10»: год, день, месяц.
+  // Так в Кыргызстане не пишет никто, поэтому берём числа и ставим их
+  // в привычном порядке через точку.
+  const parts = Object.fromEntries(
+    format.formatToParts(date).map((part) => [part.type, part.value]),
+  );
+  return `${parts.day}.${parts.month}.${parts.year}`;
+};
 
 /** Месяц и год: «ноябрь 2024». Для группировки списка случаев. */
 export const formatMonth = (date: Date, lang: Lang): string =>
