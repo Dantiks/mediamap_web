@@ -127,7 +127,10 @@ export default async function AnalyticsPage({
         <h2 className="text-2xl">{words.trendTitle}</h2>
         <p className="mt-2 max-w-prose text-muted">{words.trendLead}</p>
 
-        <div className="mt-6 grid gap-10 lg:grid-cols-3">
+        {/* grid-cols-1, а не сетка по умолчанию: та растягивает колонку по
+            самому широкому содержимому, и двенадцать подписей месяцев
+            выталкивали страницу вбок на телефоне. */}
+        <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-3">
           {data.trends.map((trend) => (
             <div key={trend.slug}>
               <h3 className="text-lg">{typeName(trend.slug)}</h3>

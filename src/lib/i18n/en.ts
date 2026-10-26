@@ -567,6 +567,48 @@ const en = {
     externalLink: "Opens on another site",
   },
 
+  lowVision: {
+    open: "Low vision mode",
+    title: "Low vision mode",
+    note: "Your choice is saved on this device.",
+    close: "Close",
+    reset: "Standard version",
+    font: {
+      label: "Text size",
+      normal: "Standard",
+      large: "Large",
+      xlarge: "Extra large",
+    },
+    scheme: {
+      label: "Colours",
+      normal: "Standard",
+      light: "Black on white",
+      dark: "White on black",
+    },
+    spacing: {
+      label: "Letter spacing",
+      normal: "Standard",
+      wide: "Wider",
+      wider: "Widest",
+    },
+    leading: {
+      label: "Line spacing",
+      normal: "Standard",
+      loose: "1.5×",
+      looser: "Double",
+    },
+    images: {
+      label: "Images",
+      on: "Show",
+      off: "Hide",
+    },
+    motion: {
+      label: "Animation",
+      on: "On",
+      off: "Off",
+    },
+  },
+
   checkPage: {
     title: "Image check",
     lead: "Upload a picture and we will show what is known about it.",

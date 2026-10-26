@@ -257,3 +257,274 @@
     animation-iteration-count: infinite !important;
   }
 }
+
+/* --- Версия для слабовидящих ------------------------------------------- */
+/*
+  Настройки приходят атрибутами на <html> (см. src/lib/low-vision.ts) и
+  переопределяют токены из @theme. Разметку страниц не трогаем: она уже
+  берёт цвета и кегли из токенов, поэтому весь сайт перестраивается разом.
+
+  Правила стоят вне слоёв — так они сильнее и токенов, и утилит Tailwind,
+  и обходятся без !important.
+
+  Пары цветов обеих схем проверяет python scripts/check-contrast.py.
+*/
+
+/*
+  Крупный шрифт растит только кегль, а не rem целиком. Растяни мы корневой
+  размер — выросли бы и отступы, и высота шапки, а точки перелома остались
+  бы прежними: на ноутбуке включалась бы раскладка для широкого экрана,
+  в которую крупная страница уже не помещается.
+
+  text-xl в токенах проекта нет — это значение Tailwind по умолчанию, но
+  на сайте оно встречается, поэтому растёт вместе с остальными.
+
+  Мелкий текст растёт сильнее крупного: человеку нужен читаемый абзац, а
+  заголовок в шестьдесят пунктов и так виден. Раздуй его в полтора раза —
+  на телефоне одно слово перестанет влезать в строку.
+*/
+html[data-a11y-font="large"] {
+  --text-2xs: 0.9375rem;
+  --text-xs: 1rem;
+  --text-sm: 1.0625rem;
+  --text-base: 1.25rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.375rem;
+  --text-4xl: 3rem;
+  --text-5xl: 4rem;
+}
+
+html[data-a11y-font="xlarge"] {
+  --text-2xs: 1.125rem;
+  --text-xs: 1.1875rem;
+  --text-sm: 1.25rem;
+  --text-base: 1.5rem;
+  --text-lg: 1.625rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.125rem;
+  --text-3xl: 2.625rem;
+  --text-4xl: 3.25rem;
+  --text-5xl: 4.25rem;
+}
+
+/*
+  Интерлиньяж в токенах записан в rem под исходный кегль. Кегль вырос —
+  строки налезли бы друг на друга, поэтому здесь те же пропорции, но без
+  единиц: множитель считается от нового размера.
+*/
+html[data-a11y-font] {
+  --text-2xs--line-height: 1.47;
+  --text-xs--line-height: 1.54;
+  --text-sm--line-height: 1.57;
+  --text-base--line-height: 1.625;
+  --text-lg--line-height: 1.56;
+  --text-xl--line-height: 1.4;
+  --text-2xl--line-height: 1.21;
+  --text-3xl--line-height: 1.11;
+  --text-4xl--line-height: 1.08;
+  --text-5xl--line-height: 1.03;
+}
+
+/*
+  Длинное слово крупным кеглем не должно выталкивать страницу вбок: адрес
+  почты в карточке контактов растягивал колонку сетки за край телефона.
+  Именно anywhere, а не break-word: только он уменьшает минимальную ширину
+  блока, и сетка с флексом перестают держать колонку по самому длинному
+  слову. И без hyphens: auto — тот резал обычные слова в заголовках
+  («ме-диа»), хотя место для них было.
+*/
+html[data-a11y-font] body,
+html[data-a11y-spacing] body {
+  overflow-wrap: anywhere;
+}
+
+/*
+  Шапка. Пять рубрик, поиск, язык и кнопка сообщения крупным кеглем или
+  с разрядкой в строку не встают даже на широком экране: кнопки сжимались,
+  подписи лезли друг на друга. Поэтому в этих режимах рубрики всегда в
+  меню, как на телефоне. Зацепки data-header-* стоят в Header.tsx.
+*/
+:is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-nav] {
+  display: none;
+}
+
+:is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-actions] {
+  margin-left: auto;
+}
+
+:is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-menu-button] {
+  display: flex;
+}
+
+:is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-menu] {
+  display: block;
+}
+
+/* Кнопки в шапке не сжимаем: сжатая кнопка с крупной подписью внутри
+   теряет подпись. На самых узких телефонах место под них освобождает
+   плашка «Beta» — без неё сайт ничего не теряет, а без меню теряет всё. */
+:is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-actions] > * {
+  flex-shrink: 0;
+}
+
+@media (width < 380px) {
+  :is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-beta] {
+    display: none;
+  }
+}
+
+/* На планшете крупная красная кнопка не встаёт рядом с остальными. Она
+   есть последним пунктом в меню — там её и найдут. */
+@media (width < 64rem) {
+  :is(html[data-a11y-font], html[data-a11y-spacing]) [data-header-report] {
+    display: none;
+  }
+}
+
+/*
+  Межстрочный: полуторный и двойной для текста. Заголовкам столько не надо —
+  на двойном интервале две строки заголовка читаются как два разных.
+*/
+html[data-a11y-leading="loose"] {
+  --text-2xs--line-height: 1.75;
+  --text-xs--line-height: 1.75;
+  --text-sm--line-height: 1.8;
+  --text-base--line-height: 1.8;
+  --text-lg--line-height: 1.8;
+  --text-xl--line-height: 1.7;
+  --text-2xl--line-height: 1.35;
+  --text-3xl--line-height: 1.3;
+  --text-4xl--line-height: 1.25;
+  --text-5xl--line-height: 1.2;
+}
+
+html[data-a11y-leading="looser"] {
+  --text-2xs--line-height: 2;
+  --text-xs--line-height: 2;
+  --text-sm--line-height: 2;
+  --text-base--line-height: 2;
+  --text-lg--line-height: 2;
+  --text-xl--line-height: 1.8;
+  --text-2xl--line-height: 1.5;
+  --text-3xl--line-height: 1.45;
+  --text-4xl--line-height: 1.4;
+  --text-5xl--line-height: 1.35;
+}
+
+/*
+  Межбуквенный. Верхняя ступень — ровно значения из WCAG 1.4.12 (0,12 и
+  0,16 em): на них сайт обязан не ломаться, значит, и предлагать их можно.
+  Правило на всех потомках, потому что трекинг заголовков и меток задан
+  им самим и по наследству не перебивается.
+*/
+html[data-a11y-spacing="wide"] body,
+html[data-a11y-spacing="wide"] body * {
+  letter-spacing: 0.06em;
+  word-spacing: 0.1em;
+}
+
+html[data-a11y-spacing="wider"] body,
+html[data-a11y-spacing="wider"] body * {
+  letter-spacing: 0.12em;
+  word-spacing: 0.16em;
+}
+
+/*
+  Чёрным по белому. Бумага и карточка сливаются в белый, поэтому линейки
+  темнее обычного: границы блоков теперь держат на себе всю структуру.
+  Серые подписи становятся почти чёрными — оттенками иерархию здесь не
+  строим, на то есть кегль и порядок.
+*/
+html[data-a11y-scheme="light"] {
+  --color-paper: #ffffff;
+  --color-surface: #ffffff;
+  --color-ink: #000000;
+  --color-display: #000000;
+  --color-muted: #1f1f1f;
+  --color-line: #6b6b6b;
+  --color-border: #000000;
+  --color-deep: #000000;
+  --color-deep-grey: #000000;
+  --color-signal: #9e0019;
+  --color-signal-deep: #6b0011;
+  --color-hate: #4a2d75;
+  --color-disinfo: #133f58;
+  --color-fraud: #663d05;
+  --color-other: #333333;
+  --color-trust-low: #82250f;
+  --color-trust-mid: #5e4700;
+  --color-trust-high: #1b5236;
+}
+
+/*
+  Белым по чёрному. Действие здесь жёлтое, а не красное: тёмно-красный на
+  чёрном почти не виден, а светлый красный читается как ошибка. Жёлтое на
+  чёрном — привычная пара экранов для слабовидящих.
+
+  Разметка пишет «text-surface» в смысле «светлый текст на тёмной кнопке».
+  Карточка теперь чёрная, и та же пара сама становится чёрным по жёлтому —
+  поэтому все заливки (кнопки, плашка призыва, цвета видов) светлые.
+*/
+html[data-a11y-scheme="dark"] {
+  color-scheme: dark;
+  --color-paper: #000000;
+  --color-surface: #000000;
+  --color-ink: #ffffff;
+  --color-display: #ffffff;
+  --color-muted: #e0e0e0;
+  --color-line: #8c8c8c;
+  --color-border: #ffffff;
+  --color-deep: #ffd60a;
+  --color-deep-grey: #ffd60a;
+  --color-signal: #ffd60a;
+  --color-signal-deep: #fff099;
+  --color-hate: #c9b0ff;
+  --color-disinfo: #85cdf2;
+  --color-fraud: #f2bd66;
+  --color-other: #cccccc;
+  --color-trust-low: #ff9e85;
+  --color-trust-mid: #f5d061;
+  --color-trust-high: #7dd8ab;
+}
+
+/* Логотипы партнёров — прозрачные PNG с тёмным знаком: на чёрном они
+   пропадали бы целиком. */
+html[data-a11y-scheme="dark"] img {
+  background-color: #ffffff;
+}
+
+/*
+  Без картинок. Где картинка что-то значит (логотип, вложение), рядом
+  лежит подпись .a11y-image-alt — в обычном режиме её не видно.
+*/
+.a11y-image-alt {
+  display: none;
+}
+
+html[data-a11y-images="off"] img {
+  display: none;
+}
+
+html[data-a11y-images="off"] .a11y-image-alt {
+  display: inline;
+}
+
+/* Без анимации — то же, что для prefers-reduced-motion выше, но по
+   выбору на сайте: настройку системы находят не все. */
+html[data-a11y-motion="off"] *,
+html[data-a11y-motion="off"] *::before,
+html[data-a11y-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-a11y-motion="off"] .running-outline {
+  stroke-dasharray: 221;
+  animation: running-outline-fade 2s ease-in-out infinite alternate !important;
+  animation-duration: 2s !important;
+  animation-iteration-count: infinite !important;
+}

@@ -33,7 +33,9 @@ export default function Bars({ slug, points, max, label, describe }: Props) {
       {points.map((point) => (
         <li
           key={point.month.getTime()}
-          className="flex h-full flex-1 flex-col justify-end"
+          // min-w-0: иначе подпись месяца держит ширину столбика, и на
+          // телефоне двенадцать месяцев не влезали в экран.
+          className="flex h-full min-w-0 flex-1 flex-col justify-end"
           title={describe(point.month, point.total)}
         >
           {/* Нулевой месяц оставляет полоску в один пиксель: пустое место

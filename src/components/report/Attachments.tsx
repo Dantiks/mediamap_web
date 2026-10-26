@@ -58,6 +58,11 @@ export default function Attachments({ items, token, title }: Props) {
                   alt={item.name}
                   className="block max-h-80 w-full object-contain"
                 />
+                {/* Картинки выключены в версии для слабовидящих — ссылка
+                    остаётся, и у неё должно быть видимое имя. */}
+                <span className="a11y-image-alt px-3 py-2 text-sm text-signal underline">
+                  {item.name}
+                </span>
               </a>
             )}
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Geologica, Golos_Text, JetBrains_Mono } from "next/font/google";
 
@@ -7,6 +8,7 @@ import { currentUser } from "@/lib/auth";
 import { isStaff } from "@/lib/enums";
 import Footer from "@/components/site/Footer";
 import { READY_LANGUAGES, isReadyLanguage } from "@/lib/i18n";
+import { LOW_VISION_COOKIE, lowVisionAttributes, parseLowVision } from "@/lib/low-vision";
 import { getContent } from "@/server/content";
 import "../../globals.css";
 
@@ -77,13 +79,18 @@ export default async function LangLayout({
     ? { name: user.name ?? user.email, staff: isStaff(user.role) }
     : null;
 
+  // Версию для слабовидящих ставим уже на сервере: страница приходит сразу
+  // крупной и контрастной, без вспышки обычного вида на каждом переходе.
+  const lowVision = parseLowVision((await cookies()).get(LOW_VISION_COOKIE)?.value);
+
   return (
-    // suppressHydrationWarning только тут: атрибуты у html и body статичные,
-    // своё расхождение взяться неоткуда. А расширения браузера дописывают
-    // сюда своё до того, как поднимется React.
+    // suppressHydrationWarning только тут: атрибуты у html и body приходят
+    // с сервера готовыми, своё расхождение взяться неоткуда. А расширения
+    // браузера дописывают сюда своё до того, как поднимется React.
     <html
       lang={lang}
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
+      {...lowVisionAttributes(lowVision)}
       suppressHydrationWarning
     >
       <body className="min-h-screen" suppressHydrationWarning>

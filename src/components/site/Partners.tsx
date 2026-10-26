@@ -19,8 +19,13 @@ function Plate({ item, external }: { item: Partner; external: string }) {
   const body = item.logo ? (
     // Высота фиксированная, ширина по картинке: логотипы приходят разных
     // пропорций, и по ширине они разъезжались бы по вертикали.
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={item.logo} alt={item.name} className="h-8 w-auto" />
+    // Подпись рядом видна, только когда картинки выключены в версии для
+    // слабовидящих: иначе на месте логотипа оставалась бы пустота.
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={item.logo} alt={item.name} className="h-8 w-auto" />
+      <span className="a11y-image-alt">{item.name}</span>
+    </>
   ) : (
     <span>{item.name}</span>
   );
