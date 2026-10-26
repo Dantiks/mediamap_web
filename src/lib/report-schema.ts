@@ -34,12 +34,29 @@ const CITY_MAX = 80;
 */
 const EARLIEST = "2000-01-01";
 
-/** Сегодня по календарю, строкой YYYY-MM-DD — в том же виде, что даёт поле. */
+const REGION_CODES = new Set(KG_REGIONS.map((region) => region.code));
+
+/*
+  Сегодня по календарю Бишкека, строкой YYYY-MM-DD — в том же виде, что
+  даёт поле.
+
+  Раньше число бралось по поясу машины. Сервер стоит в UTC, и с полуночи
+  до шести утра по Бишкеку у него было ещё вчера: сегодняшняя дата,
+  которую форма подставляет сама, отклонялась как «в будущем». Пояс тот
+  же, что у дат на сайте (lib/format.ts), — и в браузере, и на сервере.
+*/
+const BISHKEK_DAY = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "Asia/Bishkek",
+});
+
 export function today(): string {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
+  const parts = Object.fromEntries(
+    BISHKEK_DAY.formatToParts(new Date()).map((part) => [part.type, part.value]),
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 export const reportSchema = z.object({
@@ -95,14 +112,14 @@ export const reportSchema = z.object({
     Спрашиваем выбором из семи, а не текстом: «Чуй», «Чуйская» и «чуйская
     обл.» пришлось бы разбирать вручную, а карта всё равно ждёт код.
   */
+  /*
+    Проверка своей функцией, а не union из "" и enum: в zod 4 такой union
+    при неизвестном коде отдаёт общее «Invalid input», и ключ regionUnknown
+    не срабатывал никогда.
+  */
   regionCode: z
-    .union([
-      z.literal(""),
-      z.enum(
-        KG_REGIONS.map((region) => region.code) as [string, ...string[]],
-        ERRORS.regionUnknown,
-      ),
-    ])
+    .string()
+    .refine((value) => value === "" || REGION_CODES.has(value), ERRORS.regionUnknown)
     .optional(),
 
   /** Согласие на публикацию случая. Мы публикуем — значит должны спросить. */

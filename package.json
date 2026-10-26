@@ -6,6 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset",
     "check:contrast": "python scripts/check-contrast.py",
@@ -30,6 +33,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
@@ -39,7 +43,8 @@
     "dotenv": "^17.4.2",
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   },
   "allowScripts": {
     "prisma@7.9.1": true,

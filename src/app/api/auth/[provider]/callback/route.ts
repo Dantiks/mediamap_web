@@ -4,12 +4,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { startSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { ROLE } from "@/lib/enums";
+import { langOrDefault } from "@/lib/i18n/languages";
 import { fetchProfile, isConfigured, isProviderId } from "@/lib/oauth";
 
 // Возврат от чужого сервиса: сверяем ответ, находим или заводим человека,
 // открываем сессию.
 
 const STATE_COOKIE = "mm_oauth_state";
+const LANG_COOKIE = "mm_oauth_lang";
 const SITE = process.env.SITE_URL ?? "http://localhost:3000";
 
 const back = (path: string) => NextResponse.redirect(new URL(path, SITE));
@@ -19,30 +21,37 @@ export async function GET(
   { params }: { params: Promise<{ provider: string }> },
 ) {
   const { provider } = await params;
+
+  // Язык запомнили при уходе на вход: в адрес возврата сервис его не кладёт.
+  const jar = await cookies();
+  const lang = langOrDefault(jar.get(LANG_COOKIE)?.value);
+  jar.delete(LANG_COOKIE);
+  const login = `/${lang}/account/login`;
+  const account = `/${lang}/account`;
+
   if (!isProviderId(provider) || !isConfigured(provider)) {
-    return back("/ru/account/login?error=provider");
+    return back(`${login}?error=provider`);
   }
 
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
 
-  const jar = await cookies();
   const expected = jar.get(STATE_COOKIE)?.value;
   jar.delete(STATE_COOKIE);
 
   // Человек мог отказаться на стороне сервиса — это не ошибка.
-  if (!code) return back("/ru/account/login");
+  if (!code) return back(login);
 
   // Строка не сошлась — значит возврат пришёл не с нашего перехода.
   if (!state || !expected || state !== expected) {
-    return back("/ru/account/login?error=state");
+    return back(`${login}?error=state`);
   }
 
   let profile;
   try {
     profile = await fetchProfile(provider, code);
   } catch {
-    return back("/ru/account/login?error=provider");
+    return back(`${login}?error=provider`);
   }
 
   // Уже входил этим сервисом — просто открываем сессию.
@@ -52,7 +61,7 @@ export async function GET(
 
   if (linked) {
     await startSession(linked.userId);
-    return back("/ru/account");
+    return back(account);
   }
 
   /*
@@ -84,5 +93,5 @@ export async function GET(
   });
 
   await startSession(user.id);
-  return back("/ru/account");
+  return back(account);
 }

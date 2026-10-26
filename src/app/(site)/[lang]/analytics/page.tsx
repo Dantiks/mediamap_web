@@ -52,6 +52,11 @@ export default async function AnalyticsPage({
     month: "short",
     timeZone: "UTC",
   });
+  // Одна буква — для узкого графика, где «янв.» уже не помещается.
+  const monthNarrow = new Intl.DateTimeFormat(lang, {
+    month: "narrow",
+    timeZone: "UTC",
+  });
   const monthLong = new Intl.DateTimeFormat(lang, {
     month: "long",
     year: "numeric",
@@ -127,7 +132,10 @@ export default async function AnalyticsPage({
         <h2 className="text-2xl">{words.trendTitle}</h2>
         <p className="mt-2 max-w-prose text-muted">{words.trendLead}</p>
 
-        <div className="mt-6 grid gap-10 lg:grid-cols-3">
+        {/* grid-cols-1 — это minmax(0, 1fr), а не auto: колонка без него
+            растягивалась по ширине двенадцати подписей месяцев (386 px), и на
+            телефонах уже этого страница ездила вбок. */}
+        <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-3">
           {data.trends.map((trend) => (
             <div key={trend.slug}>
               <h3 className="text-lg">{typeName(trend.slug)}</h3>
@@ -136,6 +144,7 @@ export default async function AnalyticsPage({
                 points={trend.points}
                 max={data.trendMax}
                 label={(month) => monthShort.format(month)}
+                narrowLabel={(month) => monthNarrow.format(month)}
                 describe={(month, total) =>
                   `${monthLong.format(month)} — ${total}`
                 }

@@ -4,15 +4,15 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 
 import { isReadyLanguage } from "@/lib/i18n";
+import { quizTests } from "@/lib/quiz";
 import { getContent } from "@/server/content";
 
 /*
-  «Проверь себя». Рубрика заведена, тестов пока нет — так и решено: сделать
-  их функциональными в самом конце.
+  «Проверь себя»: список тестов.
 
-  Страница-заглушка написана честно: сказано, что тестов нет, почему их нет
-  и куда пойти вместо них. Пустая страница с одним заголовком читалась бы
-  как поломка, а обещание срока, которого мы не знаем, — как обман.
+  Задания — из документа «тесты по распознаванию языка вражды», шесть тестов
+  по семь заданий. Каждый тест — своя страница: его можно переслать
+  коллеге одной ссылкой, а не «открой и пролистай до четвёртого».
 */
 
 export const revalidate = 3600;
@@ -40,6 +40,7 @@ export default async function QuizPage({
 
   const dict = await getContent(lang);
   const words = dict.quizPage;
+  const tests = quizTests(lang);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-10">
@@ -48,13 +49,38 @@ export default async function QuizPage({
         <p className="mt-4 text-lg text-muted">{words.lead}</p>
 
         <section className="mt-10 border-t border-line pt-8">
-          <h2 className="text-2xl">{words.soonTitle}</h2>
-          <p className="mt-3 text-muted">{words.soonBody}</p>
+          <h2 className="text-2xl">{words.howTitle}</h2>
+          <p className="mt-3 text-muted">{words.howBody}</p>
+          {words.sourceNote ? <p className="mt-3">{words.sourceNote}</p> : null}
         </section>
 
         <section className="mt-10 border-t border-line pt-8">
-          <h2 className="text-2xl">{words.meanwhileTitle}</h2>
-          <p className="mt-3 text-muted">{words.meanwhileBody}</p>
+          <h2 className="text-2xl">{words.testsTitle}</h2>
+          <ol className="mt-6 grid gap-px border border-line bg-line sm:grid-cols-2">
+            {tests.map((test, index) => (
+              <li key={test.slug} className="bg-surface">
+                <Link
+                  href={`/${lang}/quiz/${test.slug}`}
+                  className="flex h-full flex-col gap-2 p-6 transition-colors hover:bg-paper"
+                >
+                  <span className="text-sm text-muted">
+                    {index + 1}.{" "}
+                    {words.questionsCount.replace("{count}", String(test.questions.length))}
+                  </span>
+                  <span className="text-lg font-medium">{test.title}</span>
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm text-signal">
+                    {words.start}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="mt-10 border-t border-line pt-8">
+          <h2 className="text-2xl">{words.seeAlsoTitle}</h2>
+          <p className="mt-3 text-muted">{words.seeAlsoBody}</p>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -73,6 +99,8 @@ export default async function QuizPage({
             </Link>
           </div>
         </section>
+
+        <p className="mt-10 border-t border-line pt-6 text-sm text-muted">{words.disclaimer}</p>
       </div>
     </div>
   );

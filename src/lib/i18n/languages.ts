@@ -39,3 +39,10 @@ export const STAFF_LANG: Lang = "ru";
 
 export const isReadyLanguage = (value: string): value is Lang =>
   (READY_LANGUAGES as readonly string[]).includes(value);
+
+/**
+ * Язык из формы, куки или адреса. Чужое или пустое значение — язык по
+ * умолчанию: оно приходит снаружи и в адрес перехода идёт только проверенным.
+ */
+export const langOrDefault = (value: unknown): Lang =>
+  typeof value === "string" && isReadyLanguage(value) ? value : DEFAULT_LANG;

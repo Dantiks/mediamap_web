@@ -111,17 +111,45 @@ const sections = {
   quizPage: {
     title: "Test yourself",
     lead:
-      "Short quizzes: tell a news report from a fake, take apart a headline, " +
-      "recognise hate speech in a comment.",
-    soonTitle: "Quizzes are being written",
-    soonBody:
-      "The questions are being written together with the review team, from " +
-      "real cases in our own database rather than invented ones. We will not " +
-      "name a date until we are sure of it.",
-    meanwhileTitle: "In the meantime",
-    meanwhileBody:
-      "The violation types and the glossary answer the same questions, only " +
-      "without a score.",
+      "Scenario questions on recognising hate speech: telling criticism " +
+      "and opinion from discrimination, a threat from harshness, an " +
+      "investigation from blaming a whole group.",
+    howTitle: "How it works",
+    howBody:
+      "Choose the one best-founded answer — an explanation opens after " +
+      "it. In real cases you assess not a single phrase but the context, " +
+      "the target, the intent, the speaker's status, the reach, the " +
+      "evidence and the likely consequences. Not every rude remark is " +
+      "hate speech, and not every harmful call is a call for physical " +
+      "violence.",
+    testsTitle: "Quizzes",
+    questionsCount: "{count} questions",
+    start: "Take the quiz",
+    back: "All quizzes",
+    questionLabel: "Question {n} of {total}",
+    correct: "Correct",
+    wrong: "Incorrect",
+    rightAnswer: "The right answer:",
+    why: "Why:",
+    progress: "Answered: {done} of {total}",
+    resultTitle: "Your score",
+    result: "{score} of {total}",
+    resultBody:
+      "The explanations stay under each question, so you can come back to " +
+      "them.",
+    retry: "Try again",
+    next: "Next quiz",
+    disclaimer:
+      "These quizzes are for media literacy and moderation training, not " +
+      "for legal conclusions. Legal definitions of protected " +
+      "characteristics, incitement and threats differ between countries; " +
+      "ambiguous cases need assessing in context. All scenarios are " +
+      "teaching reconstructions, not quotes from real publications.",
+    sourceNote: "",
+    seeAlsoTitle: "To go deeper",
+    seeAlsoBody:
+      "The violation types and the glossary explain the same ideas in " +
+      "more detail.",
     toTypes: "Types of violations",
     toGlossary: "Glossary",
   },
