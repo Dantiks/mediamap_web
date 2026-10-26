@@ -39,6 +39,7 @@ const en = {
     languageSoon: "soon",
     menu: "Menu",
     close: "Close",
+    videos: "Videos",
   },
 
   home: {
@@ -107,6 +108,10 @@ const en = {
     ctaTitle: "Seen a violation?",
     ctaBody: "Tell us about it — it takes a couple of minutes.",
     ctaAction: "Fill in the form",
+
+    videoTitle: "Videos",
+    videoLead: "Short videos from the project. The rest are on a separate page.",
+    videoAll: "All videos",
   },
 
   cases: {
@@ -559,6 +564,18 @@ const en = {
       "responsibility of the Foundation for the Development of Media " +
       "Consulting and can under no circumstances be regarded as reflecting " +
       "the position of the European Union.",
+  },
+
+  videosPage: {
+    title: "Videos",
+    lead: "Project videos. Click a preview to watch.",
+    empty: "No videos yet.",
+    play: "Play video",
+    pause: "Pause",
+    soundOn: "Turn sound on",
+    soundOff: "Turn sound off",
+    duration: "Duration",
+    source: "Source",
   },
 
   a11y: {

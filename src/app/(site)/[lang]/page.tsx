@@ -7,6 +7,7 @@ import ViolationTypes from "@/components/home/ViolationTypes";
 import NewsList from "@/components/home/NewsList";
 import HowItWorks from "@/components/home/HowItWorks";
 import ReportCta from "@/components/home/ReportCta";
+import VideoFeature from "@/components/home/VideoFeature";
 import Partners from "@/components/site/Partners";
 import { isReadyLanguage } from "@/lib/i18n";
 import { getContent } from "@/server/content";
@@ -24,6 +25,9 @@ import { getHomeData } from "@/server/home-data";
 //
 // Дайджест и баннеры доноров идут в конце: это не то, ради чего сюда
 // приходят, но и прятать их незачем.
+//
+// Видео — после «Что будет»: человек уже понял, куда попал, и ролик его
+// не отвлекает от главного, а подводит к списку случаев.
 
 // Ритм разделов: 56px на телефоне, 96px на широком экране. Раньше
 // все разделы шли с телефонным отступом и на десктопе, и главная
@@ -64,6 +68,8 @@ export default async function HomePage({
       <ReportCta dict={dict} lang={lang} />
 
       <HowItWorks dict={dict} />
+
+      <VideoFeature dict={dict} lang={lang} />
 
       <CaseFeed
         dict={dict}

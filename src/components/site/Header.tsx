@@ -82,7 +82,15 @@ export default function Header({ dict, lang, account }: Props) {
     { href: `/${lang}/types`, label: dict.nav.types },
     { href: `/${lang}/analytics`, label: dict.nav.analytics },
     { href: `/${lang}/news`, label: dict.nav.news },
+    /*
+      «Видео» в строке только с xl. На 1024 пунктов на кыргызском и так
+      впритык, и ещё одно слово выталкивало красную кнопку за край экрана.
+      До xl он стоит первым под «Ещё».
+    */
+    { href: `/${lang}/videos`, label: dict.nav.videos, wide: true },
   ];
+
+  const narrowOnly = primary.filter((item) => item.wide);
 
   const secondary = [
     { href: `/${lang}/check`, label: dict.nav.check },
@@ -132,7 +140,9 @@ export default function Header({ dict, lang, account }: Props) {
               aria-current={isActive(item.href) ? "page" : undefined}
               // Одного цвета мало: серый и почти чёрный рядом почти не
               // различить. Активный пункт ещё и подчёркнут.
-              className={`relative flex h-11 items-center whitespace-nowrap text-sm transition-colors hover:text-signal ${
+              className={`relative h-11 items-center whitespace-nowrap text-sm transition-colors hover:text-signal ${
+                item.wide ? "hidden xl:flex" : "flex"
+              } ${
                 isActive(item.href)
                   ? "font-medium text-ink after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:bg-signal"
                   : "text-muted"
@@ -159,8 +169,11 @@ export default function Header({ dict, lang, account }: Props) {
 
             {isMoreOpen ? (
               <ul className="absolute left-0 top-full z-10 min-w-52 border border-line bg-paper py-1 shadow-sm">
-                {secondary.map((item) => (
-                  <li key={item.href}>
+                {[...narrowOnly, ...secondary].map((item) => (
+                  <li
+                    key={item.href}
+                    className={narrowOnly.includes(item) ? "xl:hidden" : undefined}
+                  >
                     <Link
                       href={item.href}
                       aria-current={isActive(item.href) ? "page" : undefined}
