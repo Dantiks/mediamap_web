@@ -25,6 +25,16 @@ export const REPORT_STATUS = {
 
 export type ReportStatus = (typeof REPORT_STATUS)[keyof typeof REPORT_STATUS];
 
+/** Откуда пришло сообщение. Нужно проверяющему и для счёта, сколько дал бот. */
+export const REPORT_CHANNEL = {
+  /** Форма на сайте. */
+  SITE: "site",
+  /** Telegram-бот: заявитель анонимен, писем ему не отправить. */
+  TELEGRAM: "telegram",
+} as const;
+
+export type ReportChannel = (typeof REPORT_CHANNEL)[keyof typeof REPORT_CHANNEL];
+
 export const SEVERITY = {
   LOW: "LOW",
   MEDIUM: "MEDIUM",

@@ -23,6 +23,8 @@ export type ReportRow = {
   /** Личный ключ страницы «принято» — по нему открывается вид заявителя. */
   receiptToken: string | null;
   status: ReportStatus;
+  /** Откуда пришло: site | telegram. */
+  channel: string;
   headline: string | null;
   typeSlug: string;
   story: string | null;
@@ -197,6 +199,7 @@ function toRow(row: {
   publicId: string;
   receiptToken: string | null;
   status: string;
+  channel: string;
   headline: string | null;
   authorComment: string | null;
   mediaLink: string | null;
@@ -231,6 +234,7 @@ function toRow(row: {
     publicId: row.publicId,
     receiptToken: row.receiptToken,
     status: row.status as ReportStatus,
+    channel: row.channel,
     headline: row.headline,
     typeSlug: row.violationType.slug,
     story: row.authorComment,

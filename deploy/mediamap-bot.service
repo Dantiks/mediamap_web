@@ -1,0 +1,29 @@
+# Telegram-бот. Код — в репозитории media-map-backend, точка входа
+# src/bot.ts: только бот, без старого API и без базы.
+[Unit]
+Description=MediaMap — Telegram-бот
+After=network-online.target mediamap-web.service mediamap-ml.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mediamap
+WorkingDirectory=/srv/mediamap/bot/media-map-backend/backend
+EnvironmentFile=/srv/mediamap/bot/.env
+Environment=NODE_ENV=production
+
+# Сайт и ML-сервис слушают только 127.0.0.1 — поэтому бот здесь, на этой
+# же машине, а не на Railway рядом со старым бэкендом.
+ExecStart=/usr/bin/node dist/src/bot.js
+
+Restart=always
+RestartSec=10
+
+# Бот ничего не пишет на диск: черновики подач живут в памяти, вложения
+# уходят на сайт. Поэтому только на чтение целиком.
+ProtectSystem=strict
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
