@@ -49,3 +49,12 @@ src/generated/
 
 # Приложенные к сообщениям файлы. В репозитории им не место.
 uploads/
+
+# Базы тестов: создаются заново при каждом прогоне.
+prisma/vitest.db*
+prisma/test.db*
+
+# Отчёты Playwright.
+/test-results/
+/playwright-report/
+/blob-report/
