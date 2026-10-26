@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import CaseFiles from "@/components/admin/CaseFiles";
-import { REPORT_STATUS } from "@/lib/enums";
+import { REPORT_CHANNEL, REPORT_STATUS } from "@/lib/enums";
 import { formatDate } from "@/lib/format";
 import { requireStaff } from "@/lib/guard";
 import { STAFF_LANG, VIOLATION_SLUGS, getDictionary, violationText } from "@/lib/i18n";
@@ -143,6 +143,9 @@ function Report({ row }: { row: ReportRow }) {
             : ""}
           {" · подано "}
           {formatDate(row.createdAt, STAFF_LANG)}
+          {/* Заявителю из бота не написать: ни аккаунта, ни почты. Решение он
+              узнает только по ссылке — проверяющему это стоит знать. */}
+          {row.channel === REPORT_CHANNEL.TELEGRAM ? " · через Telegram-бот" : ""}
         </span>
         {" · "}
         <Assessment row={row} />

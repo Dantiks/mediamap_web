@@ -206,9 +206,51 @@ cd /srv/mediamap/web && npm run admin:create
 `https://mediamap.kg/api/auth/google/callback`. Без этого кнопка входа
 приведёт на ошибку Google, а не на сайт.
 
+### 9. Telegram-бот
+
+Бот живёт в другом репозитории (media-map-backend), но работает здесь же:
+ML-сервис и приём сообщений сайта слушают только `127.0.0.1`. Он проверяет
+присланные сообщения моделью и принимает сообщения о нарушениях — они
+попадают в ту же очередь, что поданные на сайте, с пометкой «через
+Telegram-бот».
+
+```bash
+cd /srv/mediamap
+git clone https://github.com/Dantiks/mm.git bot
+cd bot/media-map-backend/backend
+npm ci && npm run build
+openssl rand -hex 32        # секрет — в оба .env ниже, один и тот же
+```
+
+В `/srv/mediamap/web/.env` дописать `BOT_INTAKE_SECRET=<секрет>` и
+перезапустить сайт. Файл `/srv/mediamap/bot/.env`:
+
+```bash
+TELEGRAM_BOT_TOKEN=<токен от @BotFather>
+ML_SERVICE_URL=http://127.0.0.1:8000
+SITE_INTAKE_URL=http://127.0.0.1:3000/api/intake/telegram
+BOT_INTAKE_SECRET=<тот же секрет>
+```
+
+```bash
+chown -R mediamap:mediamap /srv/mediamap/bot && chmod 600 /srv/mediamap/bot/.env
+cp /srv/mediamap/web/deploy/mediamap-bot.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now mediamap-bot
+journalctl -u mediamap-bot -n 20   # «Telegram-бот запущен…» и ни одного WARN
+```
+
+**Один токен — один процесс.** Если старый бэкенд на Railway ещё запущен с
+`TELEGRAM_BOT_TOKEN`, уберите переменную там: два процесса с одним токеном
+мешают друг другу, и в журнале бота пойдут ошибки 409. В свежих версиях
+старого бэкенда бот из основного приложения уже убран.
+
+**Адрес `/api/intake/` снаружи закрыт** в Caddyfile, а сам обработчик
+отвечает только запросам с этой машины и с секретом.
+
 ## Что важно не забыть
 
-**Оба сервиса слушают только `127.0.0.1`.** Наружу пускает Caddy — он же
+**Сайт и ML-сервис слушают только `127.0.0.1`.** Наружу пускает Caddy — он же
 держит сертификат. У сайта адрес задан флагом `-H`, а не переменной
 `HOSTNAME`: Next 16 её не смотрит, и с ней сервер поднимается на всех
 интерфейсах.
