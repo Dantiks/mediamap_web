@@ -4,8 +4,24 @@
     {
       "name": "mediamap-web",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "mediamap-web-test",
+      "runtimeExecutable": "/usr/bin/env",
+      "runtimeArgs": [
+        "DATABASE_URL=file:./prisma/test.db",
+        "npx",
+        "next",
+        "dev",
+        "-p",
+        "3013"
+      ],
+      "port": 3013
     }
   ]
 }
