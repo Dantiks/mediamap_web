@@ -1,4 +1,5 @@
 import type ru from "./ru";
+import assistant from "./assistant-ky";
 import glossary from "./glossary-ky";
 import sections from "./sections-ky";
 import violations from "./violations-ky";
@@ -668,6 +669,7 @@ const ky: typeof ru = {
   },
 
   glossary,
+  assistant,
 
   ...sections,
 };

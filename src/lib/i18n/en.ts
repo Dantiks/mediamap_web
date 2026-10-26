@@ -1,3 +1,4 @@
+import assistant from "./assistant-en";
 import glossary from "./glossary-en";
 import sections from "./sections-en";
 import violations from "./violations-en";
@@ -683,6 +684,7 @@ const en = {
   },
 
   glossary,
+  assistant,
 
   ...sections,
 };

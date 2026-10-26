@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { Geologica, Golos_Text, JetBrains_Mono } from "next/font/google";
 
+import Assistant from "@/components/assistant/Assistant";
 import Header from "@/components/site/Header";
 import { currentUser } from "@/lib/auth";
 import { isStaff } from "@/lib/enums";
 import Footer from "@/components/site/Footer";
 import { READY_LANGUAGES, isReadyLanguage } from "@/lib/i18n";
 import { LOW_VISION_COOKIE, lowVisionAttributes, parseLowVision } from "@/lib/low-vision";
+import { assistantEnabled } from "@/server/assistant/config";
 import { getContent } from "@/server/content";
 import "../../globals.css";
 
@@ -105,6 +107,8 @@ export default async function LangLayout({
         <Header dict={dict} lang={lang} account={account} />
         <main id="content">{children}</main>
         <Footer dict={dict} lang={lang} />
+        {/* Без ключа модели кнопки нет вовсе — см. server/assistant/config.ts. */}
+        {assistantEnabled() ? <Assistant words={dict.assistant} lang={lang} /> : null}
       </body>
     </html>
   );
