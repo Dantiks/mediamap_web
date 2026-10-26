@@ -19,15 +19,18 @@ export default function NewsList({
 
   return (
     <section className="border-t border-line">
-      <div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-24">
-        <div className="flex flex-wrap items-baseline justify-between gap-4">
-          <div>
-            <h2 className="text-2xl lg:text-3xl">{dict.home.newsTitle}</h2>
-            <p className="mt-2 text-muted">{dict.home.newsLead}</p>
-          </div>
+      {/*
+        Заголовок слева, список справа. Заголовки новостей короткие, и
+        в одну колонку на всю ширину правая половина раздела стояла
+        пустой. Пропорция та же, что у «Случаев» выше.
+      */}
+      <div className="mx-auto grid max-w-[1400px] gap-8 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[1fr_1.5fr] lg:gap-14 lg:px-10 lg:py-24">
+        <div>
+          <h2 className="text-2xl lg:text-3xl">{dict.home.newsTitle}</h2>
+          <p className="mt-2 max-w-sm text-muted">{dict.home.newsLead}</p>
           <Link
             href={`/${lang}/news`}
-            className="inline-flex min-h-11 items-center gap-1.5 py-2 text-sm text-signal hover:underline"
+            className="mt-4 inline-flex min-h-11 items-center gap-1.5 py-2 text-sm text-signal hover:underline"
           >
             {dict.home.newsAll}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -36,7 +39,7 @@ export default function NewsList({
 
         {/* Без линеек: три списка подряд с ними превращали страницу
             в одну длинную таблицу. */}
-        <ul className="mt-8 space-y-5 lg:mt-12">
+        <ul className="space-y-5 lg:pt-2">
           {news.map((item) => (
             <li key={item.id}>
               <a
