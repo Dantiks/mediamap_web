@@ -1,0 +1,63 @@
+# Отложенный файл GitHub Actions. Его место — .github/workflows/tests.yml.
+#
+# Убран оттуда при первой отправке: токен, которым пушили, был без права
+# workflow, и GitHub отказывался принимать коммиты с этим файлом. Чтобы
+# вернуть: gh auth refresh -h github.com -s workflow, затем
+#   mkdir -p .github/workflows && git mv docs/ci/tests.yml .github/workflows/
+# и эту шапку можно удалить.
+
+# Тесты на каждый пуш и пулл-реквест. Секретов не нужно: база — SQLite-файл,
+# создаётся миграциями прямо в прогоне, внешние сервисы (модель, почта,
+# переводы) в тестах выключены.
+
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    name: Vitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Клиент Prisma лежит в src/generated и в репозиторий не попадает.
+      - run: npx prisma generate
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  e2e:
+    name: Playwright
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx playwright install --with-deps chromium
+      # Сервер на 3013 с prisma/test.db поднимает сам Playwright
+      # (playwright.config.ts → webServer).
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
