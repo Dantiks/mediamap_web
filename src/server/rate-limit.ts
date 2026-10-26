@@ -99,8 +99,22 @@ export const CHECK_LIMITS: Limits = {
   forgiveMs: 10 * 60 * 1000,
 };
 
+/*
+  Ассистент. Вопросы идут чаще, чем подача и проверка: человек уточняет,
+  переспрашивает, и десяток реплик за пять минут — обычный разговор. Но
+  каждая стоит запроса к модели, и тот, кто гонит их без перерыва, уже не
+  разговаривает.
+*/
+export const ASSISTANT_LIMITS: Limits = {
+  burst: 12,
+  windowMs: 5 * 60 * 1000,
+  pausesMs: [30 * 1000, 2 * 60 * 1000, 10 * 60 * 1000],
+  forgiveMs: 15 * 60 * 1000,
+};
+
 const hits = new Map<string, Record>();
 const checks = new Map<string, Record>();
+const questions = new Map<string, Record>();
 
 /**
  * Адрес отправителя.
@@ -145,6 +159,11 @@ export async function takeSubmitSlot(): Promise<Decision> {
  */
 export async function takeCheckSlot(): Promise<Decision> {
   return take(checks, CHECK_LIMITS);
+}
+
+/** Можно ли задать ассистенту ещё один вопрос. Свой счёт, как у проверки. */
+export async function takeAssistantSlot(): Promise<Decision> {
+  return take(questions, ASSISTANT_LIMITS);
 }
 
 async function take(store: Map<string, Record>, limits: Limits): Promise<Decision> {
@@ -208,7 +227,7 @@ export function decide(
 */
 const sweeper = setInterval(() => {
   const now = Date.now();
-  for (const store of [hits, checks]) sweep(store, now);
+  for (const store of [hits, checks, questions]) sweep(store, now);
 }, MEMORY_MS);
 
 function sweep(store: Map<string, Record>, now: number): void {

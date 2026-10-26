@@ -1,3 +1,4 @@
+import assistant from "./assistant-ru";
 import glossary from "./glossary-ru";
 import sections from "./sections-ru";
 import violations from "./violations-ru";
@@ -683,6 +684,7 @@ const ru = {
   },
 
   glossary,
+  assistant,
 
   ...sections,
 };
