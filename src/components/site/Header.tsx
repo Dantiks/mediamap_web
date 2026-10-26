@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Inbox, Menu, Search, UserRound, X } from "lucide-react";
+import { ChevronDown, Eye, Inbox, Menu, Search, UserRound, X } from "lucide-react";
 
 import LanguageSwitcher from "./LanguageSwitcher";
+import LowVisionPanel from "./LowVisionPanel";
 import type { Dictionary, Lang } from "@/lib/i18n";
 
 // Два правила, оба выстраданы на старом сайте:
@@ -26,6 +27,8 @@ export default function Header({ dict, lang, account }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const [isLowVisionOpen, setIsLowVisionOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
 
   /*
@@ -49,6 +52,7 @@ export default function Header({ dict, lang, account }: Props) {
   useEffect(() => {
     setIsOpen(false);
     setIsMoreOpen(false);
+    setIsLowVisionOpen(false);
   }, [pathname]);
 
   /*
@@ -113,18 +117,25 @@ export default function Header({ dict, lang, account }: Props) {
 
   return (
     <header className="sticky top-0 z-[100] border-b border-line bg-paper">
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:gap-6 sm:px-6 lg:px-10">
+      {/* На широком экране промежутки уже, чем на планшете: с кнопкой
+          версии для слабовидящих рубрики и кнопки иначе не вставали в
+          строку — на 1024 вылезали за край, на 1280 подписи «Мои
+          сообщения» и «Сообщить о нарушении» ломались в две строки. */}
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:gap-6 sm:px-6 lg:gap-3 lg:px-10 xl:gap-4">
         <Link
           href={`/${lang}`}
           className="flex h-11 items-center font-display text-lg font-medium tracking-tight whitespace-nowrap"
         >
           {dict.brand}
-          <span className="ml-2 rounded-xs border border-line bg-surface px-1.5 py-0.5 text-[10px] font-medium text-muted uppercase leading-none">
+          <span data-header-beta className="ml-2 rounded-xs border border-line bg-surface px-1.5 py-0.5 text-[10px] font-medium text-muted uppercase leading-none">
             Beta
           </span>
         </Link>
 
-        <nav className="hidden flex-1 items-center gap-6 lg:flex">
+        {/* data-header-* — зацепки для версии для слабовидящих: крупным
+            шрифтом рубрики в строку не встают, и шапка уходит в меню
+            на любой ширине (globals.css). */}
+        <nav data-header-nav className="hidden flex-1 items-center gap-3 lg:flex xl:gap-4">
           {primary.map((item) => (
             <Link
               key={item.href}
@@ -177,7 +188,7 @@ export default function Header({ dict, lang, account }: Props) {
           </div>
         </nav>
 
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
+        <div data-header-actions className="ml-auto flex items-center gap-2 lg:ml-0">
           {/* Поиск значком, без поля: поле в шапке съедало место, которое
               нужнее рубрикам, а страница поиска всё равно своя. На самых
               узких телефонах поиск и вход прячем: они есть в меню, а
@@ -190,6 +201,20 @@ export default function Header({ dict, lang, account }: Props) {
             <Search className="h-4 w-4" aria-hidden="true" />
             <span className="sr-only">{dict.nav.search}</span>
           </Link>
+
+          {/* Версия для слабовидящих. На телефоне места в шапке нет — там
+              кнопка в меню. */}
+          <button
+            type="button"
+            onClick={() => setIsLowVisionOpen((value) => !value)}
+            aria-expanded={isLowVisionOpen}
+            title={dict.lowVision.open}
+            data-low-vision-trigger
+            className="hidden h-11 w-11 items-center justify-center rounded-xs border border-border transition-colors hover:bg-surface md:flex"
+          >
+            <Eye className="h-4 w-4" aria-hidden="true" />
+            <span className="sr-only">{dict.lowVision.open}</span>
+          </button>
 
           <LanguageSwitcher
             current={lang}
@@ -214,6 +239,7 @@ export default function Header({ dict, lang, account }: Props) {
 
           <Link
             href={`/${lang}/report`}
+            data-header-report
             aria-hidden={showReport ? undefined : true}
             tabIndex={showReport ? undefined : -1}
             className={`hidden h-11 items-center rounded-xs bg-signal px-4 text-sm font-medium text-surface transition-[background-color,opacity] duration-200 hover:bg-signal-deep sm:flex ${
@@ -224,6 +250,8 @@ export default function Header({ dict, lang, account }: Props) {
           </Link>
 
           <button
+            ref={menuButtonRef}
+            data-header-menu-button
             type="button"
             onClick={() => setIsOpen((value) => !value)}
             aria-expanded={isOpen}
@@ -236,7 +264,13 @@ export default function Header({ dict, lang, account }: Props) {
       </div>
 
       {isOpen ? (
-        <nav className="border-t border-line bg-paper lg:hidden">
+        // Меню внутри прилипшей шапки само не прокручивается: крупным
+        // шрифтом нижние пункты уходили за экран, и дотянуться до них было
+        // нельзя. Поэтому высота — не больше экрана под шапкой.
+        <nav
+          data-header-menu
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-paper lg:hidden"
+        >
           <ul className="mx-auto max-w-[1400px] px-4 py-2 sm:px-6">
             {items.map((item) => (
               <li key={item.href} className="border-b border-line">
@@ -273,6 +307,21 @@ export default function Header({ dict, lang, account }: Props) {
                 {personalLabel}
               </Link>
             </li>
+            <li className="border-b border-line">
+              {/* Меню закрываем: панель встаёт на его место под шапкой. */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsLowVisionOpen(true);
+                }}
+                data-low-vision-trigger
+                className="flex w-full items-center gap-2 py-3.5 text-left text-base"
+              >
+                <Eye className="h-4 w-4" aria-hidden="true" />
+                {dict.lowVision.open}
+              </button>
+            </li>
 
             <li className="py-3">
               <Link
@@ -284,6 +333,14 @@ export default function Header({ dict, lang, account }: Props) {
             </li>
           </ul>
         </nav>
+      ) : null}
+
+      {isLowVisionOpen ? (
+        <LowVisionPanel
+          dict={dict.lowVision}
+          onClose={() => setIsLowVisionOpen(false)}
+          fallbackFocus={menuButtonRef}
+        />
       ) : null}
     </header>
   );
