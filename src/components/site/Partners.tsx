@@ -6,10 +6,9 @@ import type { Dictionary } from "@/lib/i18n";
 /*
   Место под баннеры доноров и партнёров.
 
-  Пока это подписи, а не логотипы: файлов нам не присылали, а рисовать чужие
-  товарные знаки самим нельзя. Разметка уже умеет показать картинку — как
-  только logo появится в src/lib/partners.ts, подпись сменится на неё, и
-  трогать этот файл не придётся.
+  Логотипы, а у кого файла нет — подпись: рисовать чужие товарные знаки
+  самим нельзя. Как только logo появится в src/lib/partners.ts, подпись
+  сменится на картинку, и трогать этот файл не придётся.
 
   Ряд не карточки, а строка имён: на карточках пустое место под логотип
   читалось бы как незагрузившаяся картинка.
@@ -23,7 +22,7 @@ function Plate({ item, external }: { item: Partner; external: string }) {
     // слабовидящих: иначе на месте логотипа оставалась бы пустота.
     <>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.logo} alt={item.name} className="h-8 w-auto" />
+      <img src={item.logo} alt={item.name} className={`${item.square ? "h-14" : "h-8"} w-auto`} />
       <span className="a11y-image-alt">{item.name}</span>
     </>
   ) : (
