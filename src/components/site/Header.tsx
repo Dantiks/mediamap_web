@@ -70,9 +70,10 @@ export default function Header({ dict, lang, account }: Props) {
     { href: `/${lang}/analytics`, label: dict.nav.analytics },
     { href: `/${lang}/news`, label: dict.nav.news },
     /*
-      «Видео» в строке только с xl. На 1024 пунктов на кыргызском и так
-      впритык, и ещё одно слово выталкивало красную кнопку за край экрана.
-      До xl он стоит первым под «Ещё».
+      «Видео» в строке только с 1440. Ниже на кыргызском шапка и без него
+      не вставала в строку: с кнопкой версии для слабовидящих и всегда
+      видимой красной кнопкой ей нужно около 1350 px. До 1440 он стоит
+      первым под «Ещё».
     */
     { href: `/${lang}/videos`, label: dict.nav.videos, wide: true },
   ];
@@ -128,8 +129,11 @@ export default function Header({ dict, lang, account }: Props) {
 
         {/* data-header-* — зацепки для версии для слабовидящих: крупным
             шрифтом рубрики в строку не встают, и шапка уходит в меню
-            на любой ширине (globals.css). */}
-        <nav data-header-nav className="hidden flex-1 items-center gap-3 lg:flex xl:gap-4">
+            на любой ширине (globals.css).
+            Рубрики в строке — с 1280. Ниже, на 1024–1200, они вместе со
+            всегда видимой красной кнопкой не вставали в строку на
+            кыргызском и русском, и шапку выносило за край; там меню. */}
+        <nav data-header-nav className="hidden flex-1 items-center gap-3 xl:flex">
           {primary.map((item) => (
             <Link
               key={item.href}
@@ -138,7 +142,7 @@ export default function Header({ dict, lang, account }: Props) {
               // Одного цвета мало: серый и почти чёрный рядом почти не
               // различить. Активный пункт ещё и подчёркнут.
               className={`relative h-11 items-center whitespace-nowrap text-sm transition-colors hover:text-signal ${
-                item.wide ? "hidden xl:flex" : "flex"
+                item.wide ? "hidden min-[1440px]:flex" : "flex"
               } ${
                 isActive(item.href)
                   ? "font-medium text-ink after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:bg-signal"
@@ -169,7 +173,7 @@ export default function Header({ dict, lang, account }: Props) {
                 {[...narrowOnly, ...secondary].map((item) => (
                   <li
                     key={item.href}
-                    className={narrowOnly.includes(item) ? "xl:hidden" : undefined}
+                    className={narrowOnly.includes(item) ? "min-[1440px]:hidden" : undefined}
                   >
                     <Link
                       href={item.href}
@@ -187,7 +191,7 @@ export default function Header({ dict, lang, account }: Props) {
           </div>
         </nav>
 
-        <div data-header-actions className="ml-auto flex items-center gap-2 lg:ml-0">
+        <div data-header-actions className="ml-auto flex items-center gap-2 xl:ml-0">
           {/* Поиск значком, без поля: поле в шапке съедало место, которое
               нужнее рубрикам, а страница поиска всё равно своя. На самых
               узких телефонах поиск и вход прячем: они есть в меню, а
@@ -221,11 +225,14 @@ export default function Header({ dict, lang, account }: Props) {
             soonLabel={dict.nav.languageSoon}
           />
 
-          {/* Подпись прячем на узких экранах: значка хватает, а место в
-              шапке дороже. */}
+          {/* На телефонах уже 420 кнопки нет вовсе — она есть в меню, а с
+              названием «MediaMap.kg» шапка на 390 вылезала вбок.
+              Подпись прячем до 1440: значка хватает, а место в шапке дороже.
+              С xl, как раньше, на кыргызском подпись выталкивала красную
+              кнопку из строки, и та ломалась на три строки. */}
           <Link
             href={personalHref}
-            className="hidden h-11 items-center gap-2 rounded-xs border border-border px-3 text-sm transition-colors hover:bg-surface min-[380px]:flex"
+            className="hidden h-11 items-center gap-2 rounded-xs border border-border px-3 text-sm transition-colors hover:bg-surface min-[420px]:flex"
             title={account ? account.name : personalLabel}
           >
             {account ? (
@@ -233,13 +240,13 @@ export default function Header({ dict, lang, account }: Props) {
             ) : (
               <Inbox className="h-4 w-4" aria-hidden="true" />
             )}
-            <span className="sr-only xl:not-sr-only">{personalLabel}</span>
+            <span className="sr-only min-[1440px]:not-sr-only min-[1440px]:whitespace-nowrap">{personalLabel}</span>
           </Link>
 
           <Link
             href={`/${lang}/report`}
             data-header-report
-            className="hidden h-11 items-center rounded-xs bg-signal px-4 text-sm font-medium text-surface transition-colors hover:bg-signal-deep sm:flex"
+            className="hidden h-11 shrink-0 items-center rounded-xs bg-signal px-4 text-sm font-medium whitespace-nowrap text-surface transition-colors hover:bg-signal-deep sm:flex"
           >
             {dict.nav.report}
           </Link>
@@ -251,7 +258,7 @@ export default function Header({ dict, lang, account }: Props) {
             onClick={() => setIsOpen((value) => !value)}
             aria-expanded={isOpen}
             aria-label={isOpen ? dict.nav.close : dict.nav.menu}
-            className="flex h-11 w-11 items-center justify-center rounded-xs border border-border lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-xs border border-border xl:hidden"
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -264,7 +271,7 @@ export default function Header({ dict, lang, account }: Props) {
         // нельзя. Поэтому высота — не больше экрана под шапкой.
         <nav
           data-header-menu
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-paper lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-line bg-paper xl:hidden"
         >
           <ul className="mx-auto max-w-[1400px] px-4 py-2 sm:px-6">
             {items.map((item) => (
