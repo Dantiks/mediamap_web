@@ -38,6 +38,7 @@ const en = {
     account: "Account",
     panel: "Panel",
     languageSoon: "soon",
+    beta: "beta",
     menu: "Menu",
     close: "Close",
     videos: "Videos",
@@ -60,7 +61,7 @@ const en = {
     statReceived: "received",
     statCases: "confirmed",
     statRecent: "in the past month",
-    statReviewDays: "— how long a review takes",
+    statReviewDays: "of active review",
 
     casesTitle: "Verified cases",
     casesLead: "What we confirmed after review.",
@@ -74,6 +75,17 @@ const en = {
     typesLead: "Every case is assigned to one of three types.",
     typesAll: "More about the types",
     typesEmpty: "No cases yet",
+
+    videoTitle: "How not to get caught",
+    videoLead: "Short clips: how to spot a scam, a fake and hate speech.",
+    videoPlay: "Watch",
+    videoAll: "All clips",
+    videoSoundOn: "Turn the sound on",
+    videoSoundOff: "Turn the sound off",
+    videoPause: "Pause",
+    videoSeek: "Seek",
+    videoPrev: "Previous clip",
+    videoNext: "Next clip",
 
     newsTitle: "Media digest",
     newsLead: "We follow what the specialist outlets publish.",
@@ -109,10 +121,6 @@ const en = {
     ctaTitle: "Seen a violation?",
     ctaBody: "Tell us about it — it takes a couple of minutes.",
     ctaAction: "Fill in the form",
-
-    videoTitle: "Videos",
-    videoLead: "Short videos from the project. The rest are on a separate page.",
-    videoAll: "All videos",
   },
 
   cases: {
@@ -151,7 +159,7 @@ const en = {
     verdictConfirmed: "confirmed by a MediaMap reviewer",
     readAnalysis: "Full analysis",
     breadcrumbs: "Section navigation",
-    details: "About the case",
+    details: "More details",
     quoteShow: "Show the text",
     quoteWarning: {
       "hate-speech":
@@ -305,6 +313,29 @@ const en = {
     adminRejected: "Not confirmed",
 
     reasonsLabel: "What the conclusion rests on",
+    adviceTitle: "What to do",
+    advice: {
+      "digital-fraud": [
+        "Do not open the link from the message and do not type anything on the page it leads to.",
+        "Never give anyone the code from an SMS, a PIN or the three digits on the back of a card. A bank does not ask for them.",
+        "Do not move money to a “safe account” and do not pay in advance for a payout, a job or a prize.",
+        "If you have already sent money or entered card details, call the bank and block the card, then go to the police.",
+        "Keep the messages and screenshots: without them a complaint is hard to act on.",
+      ],
+      "hate-speech": [
+        "Do not answer in kind: hitting back turns the target into a participant.",
+        "Report the post to the platform itself — social networks have a button for it.",
+        "Keep a screenshot with the link and the date: such posts are often deleted.",
+        "If there is a threat to life or health, go to the police.",
+      ],
+      disinformation: [
+        "Do not pass the post on until it has been checked.",
+        "Look for the same story in outlets that name their source.",
+        "Check the date: old events are often served as today’s news.",
+        "Run a reverse image search — the picture may come from another event.",
+      ],
+    },
+    markersTitle: "Highlighted: what the model reacted to",
     terminologyLabel: "A note on terminology",
     terminologyText:
       "The term “invalid” puts a diagnosis or a limitation first and defines a person above all through their health condition. The phrase “person with a disability” follows the principles of person-first language: the person comes first, then their characteristic, and it stresses that disability is only one of many traits of a personality, not its whole essence. This is in line with current international standards, including UN terminology and the recommendations of human rights organisations representing people with disabilities. This approach helps to counter stigma and stereotypes and to reduce the perception of a person as an “object of pity” or as “inferior”. Using this phrase also respects the self-identification of people with disabilities themselves, many of whom prefer exactly this terminology. We recommend using the correct term “person/people with a disability”.",
@@ -503,7 +534,7 @@ const en = {
 
     empty: "The feed is empty for now.",
 
-    onlyReadable: "In a language I read",
+    onlyReadable: "Russian only",
     showAll: "Show all",
     hiddenNote: "{n} in other languages hidden",
     found: "{n} in total",
@@ -567,16 +598,21 @@ const en = {
       "the position of the European Union.",
   },
 
+  qrCover: {
+    title: "This photo may contain a QR code that is unsafe to scan",
+    text: "Do not scan QR codes you do not know.",
+    confirm: "I know what I am doing",
+    cancel: "Cancel",
+    show: "Show the photo",
+    hidden: "Photo hidden: it contains a QR code",
+  },
+
   videosPage: {
-    title: "Videos",
-    lead: "Project videos. Click a preview to watch.",
-    empty: "No videos yet.",
-    play: "Play video",
-    pause: "Pause",
-    soundOn: "Turn sound on",
-    soundOff: "Turn sound off",
-    duration: "Duration",
-    source: "Source",
+    title: "Clips",
+    lead:
+      "Short explainers: how to spot a scam, a fake and hate speech. Clips " +
+      "differ by language — a voiced clip cannot be translated.",
+    empty: "No clips in this language yet.",
   },
 
   a11y: {

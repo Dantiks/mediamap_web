@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import CaseFiles from "@/components/admin/CaseFiles";
+import Marked from "@/components/report/Marked";
 import { REPORT_CHANNEL, REPORT_STATUS } from "@/lib/enums";
 import { formatDate } from "@/lib/format";
 import { requireStaff } from "@/lib/guard";
@@ -179,7 +180,9 @@ function Report({ row }: { row: ReportRow }) {
       </header>
 
       <div>
-        <p>{row.story}</p>
+        {/* Рассказ заявителя с подсвеченными цитатами модели: видно, за
+            какие куски она зацепилась, без чтения разбора целиком. */}
+        <Marked text={row.story ?? ""} markers={row.markers} />
 
         {/* Приложенное — то, ради чего проверку вообще можно провести:
             публикацию к этому времени часто уже удалили. Здесь же решается,
@@ -292,14 +295,51 @@ function Reasoning({ row }: { row: ReportRow }) {
           вердикт вынесен по этому тексту, а не по словам заявителя, и
           сверять надо в первую очередь его. */}
       {row.aiExtractedText ? (
-        <p>
-          <i>Со снимка прочитано:</i> «{row.aiExtractedText}»
-        </p>
+        <>
+          <p>
+            <i>Со снимка прочитано:</i>
+          </p>
+          <Marked text={row.aiExtractedText} markers={row.markers} />
+        </>
       ) : null}
 
       {chosen ? (
         <p>
           <i>{typeName(row.typeSlug)}:</i> {chosen}
+        </p>
+      ) : null}
+
+      {/* За что зацепилась модель. Список, а не сплошной текст: это
+          перечень улик, и читают его по одной. */}
+      {row.markers.length ? (
+        <>
+          <p>
+            <i>Зацепилась за:</i>
+          </p>
+          <ul>
+            {row.markers.map((marker) => (
+              <li key={marker}>{marker}</li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+
+      {/*
+        Статья закона. Показываем только здесь, а не заявителю и не на
+        опубликованной странице: справочник статей пока черновой, и до
+        подписи юриста это сведение для проверяющего, а не для публики.
+      */}
+      {row.law ? (
+        <p className="error">
+          <strong>Может подпадать под {row.law.label}</strong> — {row.law.title}.
+          <br />
+          {row.law.why}
+          <br />
+          <span className="note">
+            {row.law.act} · уверенность {Math.round(row.law.confidence * 100)}% ·{" "}
+            {row.law.checked}. Квалификацию даёт суд; это не юридическое
+            заключение.
+          </span>
         </p>
       ) : null}
 

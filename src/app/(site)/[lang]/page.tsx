@@ -7,12 +7,12 @@ import ViolationTypes from "@/components/home/ViolationTypes";
 import NewsList from "@/components/home/NewsList";
 import HowItWorks from "@/components/home/HowItWorks";
 import ReportCta from "@/components/home/ReportCta";
-import VideoFeature from "@/components/home/VideoFeature";
 import Partners from "@/components/site/Partners";
 import { isReadyLanguage } from "@/lib/i18n";
 import { getContent } from "@/server/content";
 import { localizeHeadlines } from "@/server/case-data";
 import { getHomeData } from "@/server/home-data";
+import { loadVideos } from "@/server/videos";
 
 // Тут только порядок разделов. Разметка — в компонентах, запросы —
 // в src/server/home-data.ts.
@@ -51,9 +51,17 @@ export default async function HomePage({
   const data = await getHomeData();
   await localizeHeadlines(data.cases, lang);
 
+  // Ролики у каждого языка свои: озвученный ролик не переведёшь.
+  const videos = await loadVideos(lang);
+
   return (
     <>
-      <Hero dict={dict} lang={lang} latest={data.cases.slice(0, 3)} />
+      <Hero
+        dict={dict}
+        lang={lang}
+        latest={data.cases.slice(0, 3)}
+        videos={videos}
+      />
 
       <Stats
         dict={dict}
@@ -69,7 +77,6 @@ export default async function HomePage({
 
       <HowItWorks dict={dict} />
 
-      <VideoFeature dict={dict} lang={lang} />
 
       <CaseFeed
         dict={dict}

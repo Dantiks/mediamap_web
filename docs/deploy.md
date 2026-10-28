@@ -121,15 +121,7 @@ npm ci
 npx prisma migrate deploy
 npx prisma generate
 npm run build
-mkdir -p uploads media/videos
-```
-
-Видео сайта в git не лежат — их копируют в `media/videos/` руками, вместе
-с превью. Какие файлы нужны, перечислено в `src/lib/videos.ts`: обработчик
-отдаёт только их, а пропавший файл просто не покажется.
-
-```bash
-scp media/videos/* mediamap@mediamap.kg:/srv/mediamap/web/media/videos/
+mkdir -p uploads
 ```
 
 Сайт при запуске сам проверяет `SITE_URL` и не поднимется с пустым или

@@ -15,6 +15,9 @@
     "admin:create": "tsx scripts/create-admin.ts",
     "news:collect": "tsx scripts/collect-news.ts",
     "news:seed": "tsx scripts/seed-news-config.ts",
+    "news:images": "tsx scripts/news-images.ts",
+    "qr:scan": "tsx scripts/qr-scan.ts",
+    "report:reassess": "tsx scripts/reassess.ts",
     "reports:translate": "tsx scripts/translate-reports.ts"
   },
   "dependencies": {

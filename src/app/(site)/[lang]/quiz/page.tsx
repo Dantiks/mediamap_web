@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { isReadyLanguage } from "@/lib/i18n";
 import { quizTests } from "@/lib/quiz";
 import { getContent } from "@/server/content";
+import { loadQuiz } from "@/server/quiz";
 
 /*
   «Проверь себя»: список тестов.
@@ -13,6 +14,10 @@ import { getContent } from "@/server/content";
   Задания — из документа «тесты по распознаванию языка вражды», шесть тестов
   по семь заданий. Каждый тест — своя страница: его можно переслать
   коллеге одной ссылкой, а не «открой и пролистай до четвёртого».
+
+  Седьмой карточкой идёт тест из вопросов, которые редакция заводит в
+  панели (/quiz/questions). Пока их нет, карточки нет: обещание теста без
+  вопросов читалось бы как поломка.
 */
 
 export const revalidate = 3600;
@@ -41,6 +46,7 @@ export default async function QuizPage({
   const dict = await getContent(lang);
   const words = dict.quizPage;
   const tests = quizTests(lang);
+  const panelQuestions = await loadQuiz(lang);
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-10">
@@ -75,6 +81,24 @@ export default async function QuizPage({
                 </Link>
               </li>
             ))}
+            {panelQuestions.length > 0 ? (
+              <li className="bg-surface">
+                <Link
+                  href={`/${lang}/quiz/questions`}
+                  className="flex h-full flex-col gap-2 p-6 transition-colors hover:bg-paper"
+                >
+                  <span className="text-sm text-muted">
+                    {tests.length + 1}.{" "}
+                    {words.questionsCount.replace("{count}", String(panelQuestions.length))}
+                  </span>
+                  <span className="text-lg font-medium">{words.panel.title}</span>
+                  <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-sm text-signal">
+                    {words.start}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </Link>
+              </li>
+            ) : null}
           </ol>
         </section>
 

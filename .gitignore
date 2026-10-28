@@ -59,6 +59,3 @@ prisma/test.db*
 /playwright-report/
 /blob-report/
 
-# Видео сайта. Весят мегабайты, кладутся на сервер руками — см.
-# src/lib/videos.ts и docs/deploy.md.
-media/

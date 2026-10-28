@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 import AssessmentCard from "@/components/report/AssessmentCard";
+import Marked from "@/components/report/Marked";
+import { hasMarks } from "@/lib/highlight";
 import Attachments from "@/components/report/Attachments";
 import RememberReceipt from "@/components/report/RememberReceipt";
 import { currentUser } from "@/lib/auth";
@@ -114,7 +116,19 @@ export default async function SentPage({
         {receipt.story ? (
           <div className="mt-8 border border-line bg-surface p-6">
             <p className="text-sm text-muted">{page.doneYourText}</p>
-            <p className="mt-2 max-w-prose whitespace-pre-line">{receipt.story}</p>
+            {/* Подсвечено то, за что зацепилась модель: видно, какие
+                куски привели к выводу, без списка вырванных цитат. */}
+            <Marked
+              text={receipt.story}
+              markers={receipt.ai?.markers ?? []}
+              className="mt-2 max-w-prose whitespace-pre-line"
+            />
+
+            {hasMarks(receipt.story, receipt.ai?.markers ?? []) ? (
+              <p className="mt-2 text-xs text-muted">
+                {dict.assessment.markersTitle}
+              </p>
+            ) : null}
 
             {receipt.link ? (
               <p className="mt-4 text-sm">
@@ -136,6 +150,7 @@ export default async function SentPage({
         ) : null}
 
         <Attachments
+          dict={dict}
           items={receipt.attachments}
           token={token}
           title={page.filesChosen}

@@ -10,6 +10,7 @@ import type { ViolationSlug } from "@/lib/i18n";
 import { assess } from "./ai-review";
 import { recordCheck } from "./ai-journal";
 import { attachTo, discard, filesFrom, prepare, type FileError } from "./attachments";
+import { scanAttachments } from "./qr-scan";
 import { warmReport } from "./text-translation";
 
 /*
@@ -220,6 +221,15 @@ export async function acceptReport({
     aiExtractedText: assessment.details?.extractedText || null,
     // Рекомендация по терминологии. Не часть вердикта — своя колонка.
     aiTerminology: assessment.details?.terminology || null,
+    // За что зацепилась модель и под какую статью это может подпадать.
+    // Пусто — значит не нашла; пустой список и «не спрашивали» мы не
+    // различаем, и различать незачем: показывать нечего в обоих случаях.
+    aiMarkers: assessment.details?.markers.length
+      ? JSON.stringify(assessment.details.markers)
+      : null,
+    aiLaw: assessment.details?.law
+      ? JSON.stringify(assessment.details.law)
+      : null,
     // По чему судили. Заявителю это говорят на странице прямым текстом.
     aiBasis: run.basis,
     // Личный ключ страницы «принято». Случайный, потому что номер
@@ -244,6 +254,16 @@ export async function acceptReport({
   }
 
   await attachTo(report.id, files.items);
+
+  /*
+    Снимки смотрим на QR-коды в фоне.
+
+    Ходить по ссылке из кода — это обращение к чужому серверу, иногда
+    медленное; заставлять заявителя ждать его ради сведения, нужного
+    проверяющему, незачем. К моменту, когда заявку откроют в панели,
+    находка уже на месте.
+  */
+  after(() => scanAttachments(report.id));
   await recordCheck(report.id, run, data.typeSlug);
 
   // Разбор модель пишет по-английски — переводы на языки сайта готовим уже

@@ -31,23 +31,6 @@ export default function Header({ dict, lang, account }: Props) {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
 
-  /*
-    На главной красная кнопка в шапке появляется, только когда первый
-    экран уехал вверх. Раньше в кадре стояли две одинаковые красные
-    «Сообщить о нарушении» в сотне пикселей друг от друга — глаз цеплялся
-    за повтор, и было непонятно, какая главная.
-  */
-  const isHome = pathname === `/${lang}`;
-  const [pastHero, setPastHero] = useState(false);
-  useEffect(() => {
-    if (!isHome) return;
-    const update = () => setPastHero(window.scrollY > 480);
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    return () => window.removeEventListener("scroll", update);
-  }, [isHome]);
-  const showReport = !isHome || pastHero;
-
   // Иначе на телефоне меню висит поверх новой страницы.
   useEffect(() => {
     setIsOpen(false);
@@ -132,11 +115,14 @@ export default function Header({ dict, lang, account }: Props) {
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:gap-6 sm:px-6 lg:gap-3 lg:px-10 xl:gap-4">
         <Link
           href={`/${lang}`}
-          className="flex h-11 items-center font-display text-lg font-medium tracking-tight whitespace-nowrap"
+          className="flex h-11 items-center gap-2 font-display text-lg font-medium tracking-tight whitespace-nowrap"
         >
           {dict.brand}
-          <span data-header-beta className="ml-2 rounded-xs border border-line bg-surface px-1.5 py-0.5 text-[10px] font-medium text-muted uppercase leading-none">
-            Beta
+          {/* Метка «бета» рядом с названием: сайт показывают вживую, и
+              читатель должен понимать, что это ещё не окончательная версия.
+              Серая, а не красная: это предупреждение, а не действие. */}
+          <span data-header-beta className="rounded-xs border border-line bg-surface px-1.5 py-0.5 font-mono text-2xs font-normal tracking-wide text-muted uppercase">
+            {dict.nav.beta}
           </span>
         </Link>
 
@@ -253,11 +239,7 @@ export default function Header({ dict, lang, account }: Props) {
           <Link
             href={`/${lang}/report`}
             data-header-report
-            aria-hidden={showReport ? undefined : true}
-            tabIndex={showReport ? undefined : -1}
-            className={`hidden h-11 items-center rounded-xs bg-signal px-4 text-sm font-medium text-surface transition-[background-color,opacity] duration-200 hover:bg-signal-deep sm:flex ${
-              showReport ? "opacity-100" : "pointer-events-none opacity-0"
-            }`}
+            className="hidden h-11 items-center rounded-xs bg-signal px-4 text-sm font-medium text-surface transition-colors hover:bg-signal-deep sm:flex"
           >
             {dict.nav.report}
           </Link>

@@ -27,6 +27,8 @@ const LINKS = [
   { href: "/admin", label: "Сообщения" },
   { href: "/admin/ai", label: "Контроль ИИ" },
   { href: "/admin/news", label: "Дайджест" },
+  { href: "/admin/videos", label: "Видео" },
+  { href: "/admin/quiz", label: "Проверь себя" },
   { href: "/admin/detectors", label: "Сервисы проверки" },
   { href: "/admin/texts", label: "Тексты сайта" },
 ];

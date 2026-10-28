@@ -5,6 +5,8 @@ import { violationText, type Dictionary, type Lang } from "@/lib/i18n";
 import { formatDate } from "@/lib/format";
 import { typeColor } from "@/lib/violation-types";
 import type { CaseRow } from "@/server/home-data";
+import type { VideoRow } from "@/server/videos";
+import HeroVideos from "./HeroVideos";
 
 /*
   Первый экран: что это за место и что здесь можно сделать.
@@ -26,9 +28,15 @@ import type { CaseRow } from "@/server/home-data";
   своей, и заголовок разъедется с остальным сайтом.
 */
 
-type Props = { dict: Dictionary; lang: Lang; latest: CaseRow[] };
+type Props = {
+  dict: Dictionary;
+  lang: Lang;
+  latest: CaseRow[];
+  /** Ролики для карусели. Пусто — справа снова встанут последние проверки. */
+  videos: VideoRow[];
+};
 
-export default function Hero({ dict, lang, latest }: Props) {
+export default function Hero({ dict, lang, latest, videos }: Props) {
   return (
     /*
       На телефоне отступы чуть меньше, чем на десктопе. На 375×812 первый
@@ -79,9 +87,18 @@ export default function Hero({ dict, lang, latest }: Props) {
           <p className="mt-4 text-sm text-muted">{dict.home.anonymous}</p>
         </div>
 
-        {/* На телефоне карточки нет: там первый экран и так занят, а тот
-            же список стоит ниже, в «Проверенных случаях». */}
-        {latest.length > 0 ? (
+        {/*
+          Справа — ролики. Решение проекта: случаи идут ниже целым разделом,
+          а ролик объясняет, как не попасться, быстрее любого текста.
+
+          Роликов может не быть вовсе: у каждого языка они свои, и на
+          кыргызской главной их может не оказаться. Тогда справа встаёт
+          прежний список последних проверок — пустая половина экрана
+          читается как незагрузившаяся картинка, а не как сдержанность.
+        */}
+        {videos.length > 0 ? (
+          <HeroVideos dict={dict} lang={lang} videos={videos} />
+        ) : latest.length > 0 ? (
           <aside className="hidden border border-line bg-surface lg:block">
             <div className="flex items-baseline justify-between gap-4 border-b border-line px-6 py-4">
               <h2 className="eyebrow">{dict.home.latestTitle}</h2>

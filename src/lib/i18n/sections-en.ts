@@ -150,6 +150,22 @@ const sections = {
     seeAlsoBody:
       "The violation types and the glossary explain the same ideas in " +
       "more detail.",
+    panel: {
+      title: "Questions from the editors",
+      lead:
+        "Short quizzes: tell a news report from a fake, take apart a headline, " +
+        "recognise hate speech in a comment.",
+      progress: "Question {n} of {total}",
+      right: "Correct",
+      wrong: "Not quite",
+      next: "Next",
+      finish: "See the result",
+      again: "Start over",
+      resultTitle: "Your result",
+      resultAll: "Every answer right. Not everyone who works with text daily can tell these apart.",
+      resultGood: "More than half right. The guide to the types of violations covers the rest.",
+      resultPoor: "Hard going so far, and that is normal: plenty of people fall for these. Have a look at the types of violations.",
+    },
     toTypes: "Types of violations",
     toGlossary: "Glossary",
   },

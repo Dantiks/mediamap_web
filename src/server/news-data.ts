@@ -80,12 +80,48 @@ export type NewsRow = {
   snippet: string | null;
   source: string;
   publishedAt: Date;
+  /** Есть ли картинка. Сам адрес наружу не отдаём — см. обработчик. */
+  hasImage: boolean;
 };
 
 export const PER_PAGE = 20;
 
+/*
+  Издания, которых в дайджесте быть не должно.
+
+  Решение проекта, а не свойство ленты: дайджест — это то, что мы читаем и
+  показываем как чтение, и издание, вызывающее вопросы о достоверности, в
+  нём не стоит. Отбор здесь, а не только в списке источников: источник из
+  панели можно выключить, но уже собранные заметки остались бы на странице.
+*/
+const EXCLUDED_HOSTS = ["kloop.kg"];
+
+const excluded = (item: { link: string; source: string }) => {
+  const haystack = `${item.link} ${item.source}`.toLowerCase();
+  return EXCLUDED_HOSTS.some((host) => haystack.includes(host.split(".")[0]));
+};
+
+export const inDigest = (item: {
+  link: string;
+  source: string;
+}): boolean => !excluded(item);
+
 /** Есть ли в строке кириллица. */
 const isCyrillic = (text: string) => /[Ѐ-ӿ]/.test(text);
+
+/*
+  Основной вид дайджеста — только русскоязычные публикации.
+
+  Раньше отбор шёл по кириллице, и вместе с русскими в него попадали
+  кыргызские заметки: алфавит у них один. Решение проекта — на первой
+  вкладке держать один язык, остальное прячется за «Показать все».
+
+  Язык берём у источника: он известен точно, в отличие от догадки по
+  трём словам заголовка. У записей, собранных до появления этого поля,
+  языка нет — для них остаётся прежняя проверка по алфавиту.
+*/
+export const isRussian = (item: { lang: string | null; title: string }) =>
+  item.lang ? item.lang === "ru" : isCyrillic(item.title);
 
 export type NewsPage = {
   items: NewsRow[];
@@ -110,7 +146,9 @@ export async function loadNewsPage(
   requestedPage: number,
   showAllLanguages: boolean,
 ): Promise<NewsPage> {
-  const all = await db.newsItem.findMany({ orderBy: { publishedAt: "desc" } });
+  const all = (
+    await db.newsItem.findMany({ orderBy: { publishedAt: "desc" } })
+  ).filter(inDigest);
 
   const seen = new Set<string>();
   const unique = all.filter((item) => {
@@ -120,7 +158,7 @@ export async function loadNewsPage(
     return true;
   });
 
-  const readable = unique.filter((item) => isCyrillic(item.title));
+  const readable = unique.filter(isRussian);
   const shown = showAllLanguages ? unique : readable;
 
   const total = shown.length;
@@ -140,6 +178,7 @@ export async function loadNewsPage(
         // Издание точнее агрегатора: RTVI полезнее, чем «Google News (KG/RU)».
         source: parsed.publisher ?? samePublisher(item.source),
         publishedAt: item.publishedAt,
+        hasImage: Boolean(item.image),
       };
     }),
     total,

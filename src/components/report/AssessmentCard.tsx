@@ -159,6 +159,17 @@ export default function AssessmentCard({
   const matchesChoice = assessment.verdict === chosenType;
 
   /*
+    Советы берём по тому виду, который определила модель, а не по выбранному
+    заявителем: человек мог ошибиться в выборе, и советовать ему по
+    несуществующему нарушению незачем. Вид не определён — советов нет.
+  */
+  const advice: string[] = isUnclear
+    ? []
+    : ((words.advice as Record<string, string[] | undefined>)[
+        assessment.verdict
+      ] ?? []);
+
+  /*
     Обоснование берём по выбранному виду, а общее — только если такого нет.
     Иначе на заявку про дезинформацию человек читал разбор про язык вражды:
     первая голова отвечала на свой вопрос, а спрашивали не её.
@@ -304,6 +315,30 @@ export default function AssessmentCard({
           <p className="mt-3 max-w-prose text-base">
             {lang ? <Translated text={explanation} lang={lang} lines={3} /> : explanation}
           </p>
+        </div>
+      ) : null}
+
+      {/*
+        Что делать. Тексты наши и заранее написанные — см. словарь. Показываем
+        только когда вид определён: советовать «не переходите по ссылке» тому,
+        у кого вид не определён, значит пугать наугад.
+
+        Стоит после разбора, а не перед: сначала человек узнаёт, что это, и
+        только потом — что с этим делать.
+      */}
+      {advice.length > 0 ? (
+        <div className="border-t border-line bg-paper px-6 py-5">
+          <p className="text-sm text-muted">{words.adviceTitle}</p>
+          <ul className="mt-3 max-w-prose space-y-2 text-base">
+            {advice.map((line) => (
+              <li key={line} className="flex gap-2">
+                <span aria-hidden="true" className="text-signal">
+                  →
+                </span>
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
 

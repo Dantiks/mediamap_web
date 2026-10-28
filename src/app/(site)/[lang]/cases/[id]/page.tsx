@@ -17,6 +17,8 @@ import { typeBorder, typeColor } from "@/lib/violation-types";
 import AssessmentCard from "@/components/report/AssessmentCard";
 import Translated from "@/components/report/Translated";
 import Attachments from "@/components/report/Attachments";
+import Marked from "@/components/report/Marked";
+import { hasMarks } from "@/lib/highlight";
 import { loadCase } from "@/server/case-data";
 import type { Verdict } from "@/server/ai-review";
 
@@ -207,8 +209,27 @@ export default async function CasePage({
                   </span>
                 </span>
               </summary>
+              {/*
+                Цитаты, за которые зацепилась модель, подсвечены прямо
+                здесь, а не вынесены списком под разбор. Список выглядел
+                набором вырванных слов, да ещё и переведённых машиной:
+                «Мы не исправляемся, если женщина и мужчина являются
+                лидерами». В тексте то же самое читается без перевода и
+                сразу видно, к чему относится.
+              */}
               <blockquote className="border-t border-line px-5 py-4 text-base whitespace-pre-line text-muted">
-                {item.authorComment}
+                <Marked
+                  text={item.authorComment}
+                  markers={item.ai?.markers ?? []}
+                />
+
+                {/* Подпись к подсветке: без неё цветные куски читаются как
+                    случайное выделение, а не как работа модели. */}
+                {hasMarks(item.authorComment, item.ai?.markers ?? []) ? (
+                  <span className="mt-3 block text-xs text-muted">
+                    {dict.assessment.markersTitle}
+                  </span>
+                ) : null}
               </blockquote>
             </details>
           </section>
@@ -219,7 +240,7 @@ export default async function CasePage({
           здесь нет и быть не может: страница публичная, а личный ключ на
           то и личный. Список пуст — блока просто нет.
         */}
-        <Attachments items={item.attachments} title={words.attachments} />
+        <Attachments dict={dict} items={item.attachments} title={words.attachments} />
 
         {/*
           Разбор модели — подробности к вердикту выше. Заметку проверяющего

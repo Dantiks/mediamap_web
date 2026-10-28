@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { markersOf } from "@/lib/highlight";
 import { REPORT_STATUS } from "@/lib/enums";
 import { hostFromUrl } from "@/lib/format";
 import type { ViolationSlug } from "@/lib/i18n";
@@ -29,7 +30,14 @@ export type CaseDetail = CaseListItem & {
     переписки бывает его собственное имя и номер. Пустой список — обычное
     состояние, а не поломка.
   */
-  attachments: { id: string; kind: string; name: string; mime: string }[];
+  attachments: {
+    id: string;
+    kind: string;
+    name: string;
+    mime: string;
+    /** На снимке найден QR-код. Такой снимок показываем под заслонкой. */
+    hasQr: boolean;
+  }[];
   /*
     Когда произошло само нарушение. Пусто у сообщений, поданных до того, как
     в форме появилась дата: подставлять им дату подачи нельзя — она про
@@ -63,6 +71,8 @@ export type CaseAssessment = {
   explanation: string | null;
   source: "rules" | "model";
   checks: Partial<Record<ViolationSlug, TypeCheck>>;
+  /** Цитаты, за которые зацепилась модель. Пусто — показывать нечего. */
+  markers: string[];
 };
 
 export const PER_PAGE = 20;
@@ -122,6 +132,19 @@ export async function loadCasePage(
   return { items, total, page, pageCount };
 }
 
+/*
+  Снимок с QR-кодом на опубликованной странице закрываем заслонкой.
+
+  Саму расшифровку наружу не отдаём: она собрана для проверяющего, и
+  печатать на странице адрес мошеннического сайта — значит разносить его
+  дальше. Посетителю нужно другое — знать, что сканировать этот код
+  опасно.
+*/
+const withQr = <T extends { qrSummary: string | null }>(row: T) => {
+  const { qrSummary, ...rest } = row;
+  return { ...rest, hasQr: Boolean(qrSummary) };
+};
+
 /** Один случай по публичному номеру. Null, если такого нет или он не подтверждён. */
 export async function loadCase(publicId: string, lang?: Lang): Promise<CaseDetail | null> {
   const row = await db.report.findFirst({
@@ -130,7 +153,7 @@ export async function loadCase(publicId: string, lang?: Lang): Promise<CaseDetai
       violationType: true,
       attachments: {
         where: { public: true },
-        select: { id: true, kind: true, name: true, mime: true },
+        select: { id: true, kind: true, name: true, mime: true, qrSummary: true },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -140,7 +163,7 @@ export async function loadCase(publicId: string, lang?: Lang): Promise<CaseDetai
 
   const detail: CaseDetail = {
     ...toListItem(row),
-    attachments: row.attachments,
+    attachments: row.attachments.map(withQr),
     happenedAt: row.happenedAt,
     terminology: row.aiTerminology,
     link: row.mediaLink,
@@ -200,6 +223,7 @@ function assessmentOf(row: {
   aiSummary: string | null;
   aiSource: string | null;
   aiTypeChecks: string | null;
+  aiMarkers: string | null;
   reviewVerdict: string | null;
   reviewConfidence: number | null;
   reviewSummary: string | null;
@@ -222,6 +246,9 @@ function assessmentOf(row: {
       row.reviewSummary ?? (row.aiSource === "model" ? row.aiSummary : null),
     source: row.aiSource === "model" ? "model" : "rules",
     checks: parseChecks(row.aiTypeChecks),
+    // Приметы показываем только там, где стоит ответ модели. Поверх решения
+    // человека они бы врали: он мог не согласиться именно с ними.
+    markers: row.reviewSummary ? [] : markersOf(row.aiMarkers),
   };
 }
 
@@ -245,7 +272,14 @@ export type Receipt = {
   story: string | null;
   link: string | null;
   city: string | null;
-  attachments: { id: string; kind: string; name: string; mime: string }[];
+  attachments: {
+    id: string;
+    kind: string;
+    name: string;
+    mime: string;
+    /** На снимке найден QR-код. Такой снимок показываем под заслонкой. */
+    hasQr: boolean;
+  }[];
   /** Заметка проверяющего к решению. Человек вправе знать, почему решили так. */
   moderatorComment: string | null;
   /** Решение принял живой человек, а не только модель. */
@@ -270,6 +304,8 @@ export type Receipt = {
     /** Обоснование словами — только у модели. */
     explanation: string | null;
     source: "rules" | "model";
+    /** Цитаты, за которые зацепилась модель. Пусто — показывать нечего. */
+    markers: string[];
     /*
       Что модель ответила по каждому виду. Пусто у разбора по словам и у
       старых записей, снятых до появления этого поля, — страница должна
@@ -292,7 +328,7 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
     include: {
       violationType: { select: { slug: true } },
       attachments: {
-        select: { id: true, kind: true, name: true, mime: true },
+        select: { id: true, kind: true, name: true, mime: true, qrSummary: true },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -309,7 +345,7 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
     story: row.authorComment,
     link: row.mediaLink,
     city: row.city,
-    attachments: row.attachments,
+    attachments: row.attachments.map(withQr),
     moderatorComment: row.moderatorComment,
     reviewed: row.reviewedAt !== null,
     reviewSummary: row.reviewSummary,
@@ -345,6 +381,7 @@ export async function loadReceipt(token: string): Promise<Receipt | null> {
               row.reviewSummary ?? (row.aiSource === "model" ? row.aiSummary : null),
             source: row.aiSource === "model" ? "model" : "rules",
             checks: parseChecks(row.aiTypeChecks),
+            markers: row.reviewSummary ? [] : markersOf(row.aiMarkers),
           }
         : null,
   };

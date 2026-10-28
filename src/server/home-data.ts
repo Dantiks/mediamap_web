@@ -1,6 +1,12 @@
 import { db } from "@/lib/db";
 import { REPORT_STATUS } from "@/lib/enums";
-import { newsKey, samePublisher, splitPublisher } from "./news-data";
+import {
+  inDigest,
+  isRussian,
+  newsKey,
+  samePublisher,
+  splitPublisher,
+} from "./news-data";
 import { loadViolationTypes, type ViolationType } from "./violations";
 import { decodeEntities, hostFromUrl } from "@/lib/format";
 
@@ -56,30 +62,24 @@ const countRecent = () =>
   });
 
 /**
- * Сколько дней в среднем проходит от подачи до решения.
+ * Сколько дней идёт активная проверка.
  *
- * Это обещание, которое мы и так даём словами: на форме написано «обычно
- * несколько дней». Здесь то же самое числом — то есть проверяемо.
+ * Это счётчик работы проекта, а не средний срок рассмотрения: число растёт
+ * на единицу каждый день. Так решено проектом — показывать, что проверка
+ * идёт непрерывно, а не сколько ждать ответа.
  *
- * null, пока рассмотренных меньше трёх: среднее по двум — не среднее, а
- * пересказ двух случаев, и первая же долгая проверка удвоит его.
+ * Дата начала задана здесь и правится здесь же. Считаем по календарным
+ * суткам, часовой пояс Бишкека: иначе счётчик прибавлялся бы ночью не
+ * тогда, когда у читателя наступает новый день.
  */
-async function averageReviewDays(): Promise<number | null> {
-  const rows = await db.report.findMany({
-    where: { ...CONFIRMED, reviewedAt: { not: null } },
-    select: { createdAt: true, reviewedAt: true },
-  });
+const ACTIVE_SINCE = Date.UTC(2026, 8, 24); // 24 сентября 2026 года
 
-  if (rows.length < 3) return null;
+const BISHKEK_OFFSET_MS = 6 * 60 * 60 * 1000;
 
-  const days = rows.map(
-    (row) => (row.reviewedAt!.getTime() - row.createdAt.getTime()) / 86_400_000,
-  );
-  const average = days.reduce((sum, value) => sum + value, 0) / days.length;
-
-  // Меньше суток округлилось бы в ноль, а «проверяем за 0 дней» — неправда
-  // даже когда приятная.
-  return Math.max(1, Math.round(average));
+function activeReviewDays(): number {
+  const today = Date.now() + BISHKEK_OFFSET_MS;
+  const days = Math.floor((today - ACTIVE_SINCE) / 86_400_000);
+  return Math.max(1, days);
 }
 
 /** Последние подтверждённые случаи. */
@@ -115,24 +115,23 @@ async function countSources(): Promise<number> {
   return hosts.size;
 }
 
-/** Есть ли в строке кириллица. */
-const isCyrillic = (text: string) => /[Ѐ-ӿ]/.test(text);
-
 // Англоязычные ленты обновляются чаще и по дате вылезали наверх — на
-// русскоязычном сайте выходила стена нечитаемого. Сначала свои, потом
+// русскоязычном сайте выходила стена нечитаемого. Сначала русские, потом
 // добираем остальными: пустой раздел хуже чужого языка.
 //
 // Повторы ловим по заголовку: у перепечаток разные ссылки и guid.
 async function loadNews(limit: number): Promise<NewsRow[]> {
-  const pool = await db.newsItem.findMany({
-    orderBy: { publishedAt: "desc" },
-    take: 200,
-  });
+  const pool = (
+    await db.newsItem.findMany({
+      orderBy: { publishedAt: "desc" },
+      take: 200,
+    })
+  ).filter(inDigest);
 
   const seen = new Set<string>();
   return [
-    ...pool.filter((item) => isCyrillic(item.title)),
-    ...pool.filter((item) => !isCyrillic(item.title)),
+    ...pool.filter(isRussian),
+    ...pool.filter((item) => !isRussian(item)),
   ]
     .filter((item) => {
       const key = newsKey(item.title);
@@ -179,7 +178,7 @@ export async function getHomeData(): Promise<HomeData> {
       countCases(),
       countReceived(),
       countRecent(),
-      averageReviewDays(),
+      activeReviewDays(),
       countNews(),
       countSources(),
       loadViolationTypes(),
