@@ -134,3 +134,17 @@ export const decodeEntities = (text: string): string =>
     }
     return ENTITIES[body.toLowerCase()] ?? whole;
   });
+
+/**
+ * Длительность ролика: 0:45, 12:05, 1:04:01.
+ *
+ * Часы появились вместе с подкастами Govori.TV: час разговора в минутах
+ * читался как «64:01» — похоже на время суток, а не на длину.
+ */
+export function clock(seconds: number): string {
+  const s = Math.max(0, Math.round(seconds));
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return h > 0 ? `${h}:${pad(m)}:${pad(s % 60)}` : `${m}:${pad(s % 60)}`;
+}

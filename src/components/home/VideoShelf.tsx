@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { ArrowRight, Play } from "lucide-react";
 
+import { clock } from "@/lib/format";
 import type { Dictionary, Lang } from "@/lib/i18n";
 import type { VideoRow } from "@/server/videos";
 
@@ -119,17 +120,43 @@ function Card({
           video.wide ? "aspect-video" : "aspect-[9/16]"
         }`}
       >
-        <video
-          ref={player}
-          src={`/api/videos/${video.id}`}
-          poster={video.hasPoster ? `/api/videos/${video.id}?poster` : undefined}
-          preload="none"
-          playsInline
-          controls={playing}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          className="h-full w-full object-cover"
-        />
+        {video.youtube ? (
+          /*
+            Ролик с YouTube. До нажатия — только их обложка картинкой:
+            плеер YouTube тянет мегабайты скриптов и ставит свои куки, и
+            грузить его ради карточки, которую могут и не открыть, незачем.
+            После нажатия — плеер с youtube-nocookie, он сразу играет.
+          */
+          playing ? (
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${video.youtube}?autoplay=1&rel=0`}
+              title={title}
+              allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+              className="h-full w-full"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`https://i.ytimg.com/vi/${video.youtube}/hqdefault.jpg`}
+              alt=""
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          )
+        ) : (
+          <video
+            ref={player}
+            src={`/api/videos/${video.id}`}
+            poster={video.hasPoster ? `/api/videos/${video.id}?poster` : undefined}
+            preload="none"
+            playsInline
+            controls={playing}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            className="h-full w-full object-cover"
+          />
+        )}
 
         {/* Своя кнопка поверх обложки: пока ролик не запущен, нативные
             элементы плеера мы не показываем, иначе на каждой карточке
@@ -139,7 +166,7 @@ function Card({
             type="button"
             onClick={() => {
               setPlaying(true);
-              void player.current?.play();
+              if (!video.youtube) void player.current?.play();
             }}
             className="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors hover:bg-black/20"
           >
@@ -157,8 +184,7 @@ function Card({
         {title}
         {video.seconds ? (
           <span className="mt-1 block text-sm text-muted tabular-nums">
-            {Math.floor(video.seconds / 60)}:
-            {String(video.seconds % 60).padStart(2, "0")}
+            {clock(video.seconds)}
           </span>
         ) : null}
       </figcaption>

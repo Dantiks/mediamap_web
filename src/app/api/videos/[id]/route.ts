@@ -28,7 +28,10 @@ export async function GET(request: NextRequest, { params }: Params) {
     select: { key: true, mime: true, size: true, posterKey: true, published: true },
   });
 
-  if (!row || !row.published) return new NextResponse(null, { status: 404 });
+  // Без файла — ролик с YouTube: его играет их плеер, нам отдавать нечего.
+  if (!row || !row.published || !row.key || !row.mime || row.size === null) {
+    return new NextResponse(null, { status: 404 });
+  }
 
   // ?poster — тот же ролик, но его обложка: отдельный обработчик ради
   // одного файла заводить незачем.

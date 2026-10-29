@@ -1,5 +1,6 @@
 import VideoForm from "@/components/admin/VideoForm";
 import VideoLinkForm from "@/components/admin/VideoLinkForm";
+import { clock } from "@/lib/format";
 import { requireEditor } from "@/lib/guard";
 import { LANGUAGES } from "@/lib/i18n/languages";
 import { loadAllVideos } from "@/server/videos";
@@ -24,12 +25,18 @@ export const dynamic = "force-dynamic";
 
 const дата = new Intl.DateTimeFormat("ru", { dateStyle: "short" });
 
-const мегабайты = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
+// У ролика с YouTube размера нет: файл лежит у них.
+const мегабайты = (bytes: number | null) =>
+  bytes === null ? "YouTube" : `${(bytes / 1024 / 1024).toFixed(1)} МБ`;
 
 const длительность = (seconds: number | null) =>
-  seconds === null
-    ? "—"
-    : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+  seconds === null ? "—" : clock(seconds);
+
+/** Куда ведёт название: свой файл или ролик на YouTube. */
+const смотреть = (video: { id: number; youtubeId: string | null }) =>
+  video.youtubeId
+    ? `https://www.youtube.com/watch?v=${video.youtubeId}`
+    : `/api/videos/${video.id}`;
 
 const язык = (code: string) =>
   LANGUAGES.find((item) => item.code === code)?.name ?? code;
@@ -56,6 +63,9 @@ export default async function AdminVideosPage() {
         Короткие ролики на главной: как не попасться мошенникам, как узнать
         фейк. Файлы лежат у нас, а не ссылками на соцсети. У каждого языка
         свои ролики: на кыргызской главной показываются кыргызские.
+        Исключение — длинные подкасты с YouTube (в таблице с размером
+        «YouTube»): они играют плеером YouTube и только на странице «Видео»,
+        в карусель на главной не попадают.
       </p>
 
       {drafts.length > 0 ? (
@@ -146,7 +156,16 @@ export default async function AdminVideosPage() {
               {videos.map((video, index) => (
                 <tr key={video.id}>
                   <td>
-                    {video.posterKey ? (
+                    {video.youtubeId ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={`https://i.ytimg.com/vi/${video.youtubeId}/default.jpg`}
+                        alt=""
+                        width={85}
+                        height={48}
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : video.posterKey ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={`/api/videos/${video.id}?poster`}
@@ -160,7 +179,7 @@ export default async function AdminVideosPage() {
                     )}
                   </td>
                   <td>
-                    <a href={`/api/videos/${video.id}`} target="_blank" rel="noreferrer">
+                    <a href={смотреть(video)} target="_blank" rel="noreferrer">
                       {video.title}
                     </a>
                   </td>

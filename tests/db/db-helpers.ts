@@ -13,6 +13,7 @@ export async function wipe(): Promise<void> {
   await db.newsItem.deleteMany();
   await db.newsSource.deleteMany();
   await db.newsKeyword.deleteMany();
+  await db.video.deleteMany();
 }
 
 /** Три вида нарушений — как в сиде. */

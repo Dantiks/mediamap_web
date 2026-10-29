@@ -29,6 +29,8 @@ export type VideoRow = {
   hasPoster: boolean;
   /** Широкий ролик (YouTube) показываем не так, как вертикальный. */
   wide: boolean;
+  /** Ролик с YouTube: играет их плеер, файла у нас нет. */
+  youtube: string | null;
 };
 
 /*
@@ -39,9 +41,19 @@ export type VideoRow = {
   не будет: показывать русский ролик вместо кыргызского хуже, чем не
   показывать ничего.
 */
-export async function loadVideos(lang: Lang, limit = 12): Promise<VideoRow[]> {
+export async function loadVideos(
+  lang: Lang,
+  limit = 12,
+  /** Только свои файлы — для карусели на первом экране, см. Hero. */
+  filesOnly = false,
+): Promise<VideoRow[]> {
   const rows = await db.video.findMany({
-    where: { published: true, draft: false, lang },
+    where: {
+      published: true,
+      draft: false,
+      lang,
+      ...(filesOnly ? { youtubeId: null } : {}),
+    },
     orderBy: [{ position: "asc" }, { createdAt: "desc" }],
     take: limit,
     select: {
@@ -51,11 +63,13 @@ export async function loadVideos(lang: Lang, limit = 12): Promise<VideoRow[]> {
       posterKey: true,
       width: true,
       height: true,
+      youtubeId: true,
     },
   });
 
-  return rows.map(({ posterKey, width, height, ...rest }) => ({
+  return rows.map(({ posterKey, width, height, youtubeId, ...rest }) => ({
     ...rest,
+    youtube: youtubeId,
     hasPoster: posterKey !== null,
     // Размеров нет у роликов, снятых без ffprobe: считаем их вертикальными,
     // такими их и загружали.
@@ -157,7 +171,8 @@ export async function dropVideo(id: number): Promise<void> {
   if (!row) return;
 
   await db.video.delete({ where: { id } });
-  await remove(row.key);
+  // У ролика с YouTube файла нет — удалять с диска нечего.
+  if (row.key) await remove(row.key);
   if (row.posterKey) await remove(row.posterKey);
 }
 

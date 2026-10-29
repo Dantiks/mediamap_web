@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  clock,
   decodeEntities,
   formatDate,
   formatMonth,
@@ -172,5 +173,13 @@ describe("decodeEntities", () => {
 
   it("не разбирает дважды: &amp;lt; остаётся &lt;", () => {
     expect(decodeEntities("&amp;lt;script&amp;gt;")).toBe("&lt;script&gt;");
+  });
+});
+
+describe("clock", () => {
+  it("минуты без часов, часы — когда они есть", () => {
+    expect(clock(45)).toBe("0:45");
+    expect(clock(725)).toBe("12:05");
+    expect(clock(3841)).toBe("1:04:01");
   });
 });
