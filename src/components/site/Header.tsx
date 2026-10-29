@@ -84,7 +84,7 @@ export default function Header({ dict, lang, account }: Props) {
     { href: `/${lang}/check`, label: dict.nav.check },
     { href: `/${lang}/resources`, label: dict.nav.resources },
     { href: `/${lang}/glossary`, label: dict.nav.glossary },
-    { href: `/${lang}/quiz`, label: dict.nav.quiz },
+    // «Проверь себя» временно скрыт, см. app/(site)/[lang]/quiz/layout.tsx.
     { href: `/${lang}/about`, label: dict.nav.about },
     { href: `/${lang}/contacts`, label: dict.nav.contacts },
   ];

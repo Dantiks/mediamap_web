@@ -138,7 +138,6 @@ ${glossary.join("\n")}
 - ${dict.newsPage.title} — ${p("/news")}: ${dict.newsPage.lead}
 - ${dict.analyticsPage.title} — ${p("/analytics")}: ${dict.analyticsPage.lead}
 - ${dict.searchPage.title} — ${p("/search")}: ${dict.searchPage.lead}
-- ${dict.quizPage.title} — ${p("/quiz")}: ${dict.quizPage.lead}
 - ${about.title} — ${p("/about")}
 - ${dict.contactsPage.title} — ${p("/contacts")}: ${dict.contactsPage.lead}
   Telegram: ${CONTACTS.telegram}; e-mail: ${CONTACTS.email}; ${dict.contactsPage.phoneTitle}: ${CONTACTS.phone}`;

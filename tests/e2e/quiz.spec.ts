@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 
 // «Проверь себя»: список тестов и прохождение одного.
+// Раздел временно скрыт (app/(site)/[lang]/quiz/layout.tsx) — вернуть вместе с ним.
+test.skip(true, "раздел «Проверь себя» временно скрыт");
 
 test("на списке шесть тестов на всех языках", async ({ page }) => {
   for (const lang of ["ru", "ky", "en"]) {
