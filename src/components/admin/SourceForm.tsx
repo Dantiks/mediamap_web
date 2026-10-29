@@ -26,7 +26,7 @@ export default function SourceForm() {
         <input name="name" size={40} required placeholder="24.kg" />
       </label>
       <label>
-        Адрес ленты RSS или Atom:
+        Адрес ленты RSS или Atom (если ленты нет — карты сайта, sitemap.xml):
         <br />
         <input
           name="feedUrl"

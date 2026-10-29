@@ -3,6 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 import { db } from "@/lib/db";
 import { decodeEntities } from "@/lib/format";
 import { imageFromFeed, imageFromHtml, imageFromPage } from "./news-image";
+import { parseSitemap, sitemapItems, sitemapSince } from "./news-sitemap";
 
 /*
   Сборщик дайджеста: обходит ленты источников и складывает подходящие
@@ -269,7 +270,12 @@ export async function collectNews(): Promise<CollectReport> {
         throw new Error(`нет ключевых слов для языка «${source.lang}»`);
       }
 
-      const items = parseFeed(await fetchFeed(source.feedUrl));
+      // За адресом источника — лента или карта сайта, см. news-sitemap.ts.
+      const xml = await fetchFeed(source.feedUrl);
+      const sitemap = parseSitemap(xml);
+      const items = sitemap
+        ? await sitemapItems(sitemap, sitemapSince(source, oldest), fetchFeed)
+        : parseFeed(xml);
       found = items.length;
       for (const item of items) {
         if (!freshest || item.publishedAt > freshest) freshest = item.publishedAt;

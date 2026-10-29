@@ -17,6 +17,8 @@
   раз за всё время: результат остаётся в базе.
 */
 
+import { decodeEntities } from "@/lib/format";
+
 /** Сколько ждать страницу материала. Дольше — остаёмся без картинки. */
 const PAGE_TIMEOUT_MS = 10_000;
 
@@ -83,24 +85,28 @@ export function imageFromHtml(html: string | null | undefined): string | null {
   return null;
 }
 
-/** Содержимое meta по property или name. */
-function meta(head: string, key: string): string | null {
+/** Содержимое meta по property или name, с расшифрованными мнемониками. */
+export function meta(head: string, key: string): string | null {
   const pattern = new RegExp(
     `<meta[^>]+(?:property|name)=["']${key}["'][^>]*>`,
     "i",
   );
   const tag = pattern.exec(head)?.[0];
   if (!tag) return null;
-  return /content=["']([^"']+)["']/i.exec(tag)?.[1] ?? null;
+  // Кавычки разбираем парой: апостроф внутри content="…" — обычное дело
+  // в заголовках, и раньше он обрывал значение на полуслове.
+  const value = /content=(?:"([^"]*)"|'([^']*)')/i.exec(tag);
+  const found = (value?.[1] ?? value?.[2] ?? "").trim();
+  return found ? decodeEntities(found) : null;
 }
 
 /**
- * og:image со страницы материала.
+ * Голова страницы материала, до </head>. null — страница не ответила.
  *
- * Ошибку не пробрасываем: картинка — украшение, и из-за недоступной
- * страницы заметка не должна пропасть из дайджеста.
+ * Читаем голову, а не страницу целиком: статья с комментариями бывает
+ * в мегабайт, а нужные теги стоят в первых килобайтах.
  */
-export async function imageFromPage(pageUrl: string): Promise<string | null> {
+export async function pageHead(pageUrl: string): Promise<string | null> {
   try {
     const response = await fetch(pageUrl, {
       signal: AbortSignal.timeout(PAGE_TIMEOUT_MS),
@@ -112,8 +118,6 @@ export async function imageFromPage(pageUrl: string): Promise<string | null> {
     });
     if (!response.ok || !response.body) return null;
 
-    // Читаем голову, а не страницу целиком: статья с комментариями бывает
-    // в мегабайт, а нужные теги стоят в первых килобайтах.
     const reader = response.body.getReader();
     const decoder = new TextDecoder("utf-8");
     let head = "";
@@ -127,22 +131,37 @@ export async function imageFromPage(pageUrl: string): Promise<string | null> {
     } finally {
       await reader.cancel().catch(() => {});
     }
-
-    const found =
-      meta(head, "og:image") ??
-      meta(head, "og:image:url") ??
-      meta(head, "twitter:image") ??
-      meta(head, "twitter:image:src");
-
-    // Относительный адрес дорешиваем по адресу страницы: часть изданий
-    // пишет в og:image путь без домена.
-    if (!found) return null;
-    try {
-      return usableImage(new URL(found, pageUrl).toString());
-    } catch {
-      return null;
-    }
+    return head;
   } catch {
     return null;
   }
+}
+
+/** og:image из уже прочитанной головы страницы. */
+export function imageFromHead(head: string, pageUrl: string): string | null {
+  const found =
+    meta(head, "og:image") ??
+    meta(head, "og:image:url") ??
+    meta(head, "twitter:image") ??
+    meta(head, "twitter:image:src");
+
+  // Относительный адрес дорешиваем по адресу страницы: часть изданий
+  // пишет в og:image путь без домена.
+  if (!found) return null;
+  try {
+    return usableImage(new URL(found, pageUrl).toString());
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * og:image со страницы материала.
+ *
+ * Ошибку не пробрасываем: картинка — украшение, и из-за недоступной
+ * страницы заметка не должна пропасть из дайджеста.
+ */
+export async function imageFromPage(pageUrl: string): Promise<string | null> {
+  const head = await pageHead(pageUrl);
+  return head ? imageFromHead(head, pageUrl) : null;
 }

@@ -78,6 +78,12 @@ export const DEFAULT_SOURCES: SeedSource[] = [
     местные издания он знает лучше поиска.
   */
   { name: "24.kg (кырг.)", feedUrl: "https://24.kg/kyrgyzcha/rss/", lang: "ky" },
+  /*
+    Ленты у Govori.TV нет (RSS выключен), поэтому адрес — карта сайта.
+    Сборщик узнаёт её сам, см. news-sitemap.ts. Добавлен по просьбе
+    проекта; на рабочую базу попал миграцией news_source_govori.
+  */
+  { name: "Govori.TV", feedUrl: "https://govori.tv/sitemap.xml", lang: "ky" },
 
   // --- английский ---
   { name: "CPJ", feedUrl: "https://cpj.org/feed/", lang: "en" },
