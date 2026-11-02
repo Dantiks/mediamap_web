@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Eye, Inbox, Menu, Search, UserRound, X } from "lucide-react";
 
 import LanguageSwitcher from "./LanguageSwitcher";
+import Logo from "./Logo";
 import LowVisionPanel from "./LowVisionPanel";
 import type { Dictionary, Lang } from "@/lib/i18n";
 
@@ -114,16 +115,18 @@ export default function Header({ dict, lang, account }: Props) {
           версии для слабовидящих рубрики и кнопки иначе не вставали в
           строку — на 1024 вылезали за край, на 1280 подписи «Мои
           сообщения» и «Сообщить о нарушении» ломались в две строки. */}
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:gap-6 sm:px-6 lg:gap-3 lg:px-10 xl:gap-4">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:px-6 md:gap-6 lg:gap-3 lg:px-10">
         <Link
           href={`/${lang}`}
-          className="flex h-11 items-center gap-2 font-display text-lg font-medium tracking-tight whitespace-nowrap"
+          className="flex h-11 shrink-0 items-center gap-2 whitespace-nowrap"
         >
-          {dict.brand}
+          <Logo label={dict.brand} className="h-6 w-auto text-ink min-[1440px]:h-7" />
           {/* Метка «бета» рядом с названием: сайт показывают вживую, и
               читатель должен понимать, что это ещё не окончательная версия.
-              Серая, а не красная: это предупреждение, а не действие. */}
-          <span data-header-beta className="rounded-xs border border-line bg-surface px-1.5 py-0.5 font-mono text-2xs font-normal tracking-wide text-muted uppercase">
+              Серая, а не красная: это предупреждение, а не действие.
+              На телефонах уже 480 её нет: логотип шире прежней надписи, и
+              вместе с ней шапка вылезала вбок. */}
+          <span data-header-beta className="hidden rounded-xs border border-line bg-surface px-1.5 py-0.5 font-mono text-2xs font-normal tracking-wide text-muted uppercase min-[480px]:inline">
             {dict.nav.beta}
           </span>
         </Link>
@@ -134,7 +137,7 @@ export default function Header({ dict, lang, account }: Props) {
             Рубрики в строке — с 1280. Ниже, на 1024–1200, они вместе со
             всегда видимой красной кнопкой не вставали в строку на
             кыргызском и русском, и шапку выносило за край; там меню. */}
-        <nav data-header-nav className="hidden flex-1 items-center gap-3 xl:flex">
+        <nav data-header-nav className="hidden flex-1 items-center gap-2.5 xl:flex">
           {primary.map((item) => (
             <Link
               key={item.href}
@@ -228,12 +231,13 @@ export default function Header({ dict, lang, account }: Props) {
 
           {/* На телефонах уже 420 кнопки нет вовсе — она есть в меню, а с
               названием «MediaMap.kg» шапка на 390 вылезала вбок.
-              Подпись прячем до 1440: значка хватает, а место в шапке дороже.
-              С xl, как раньше, на кыргызском подпись выталкивала красную
-              кнопку из строки, и та ломалась на три строки. */}
+              Подпись только для экранного чтения: значка хватает, а место в
+              шапке дороже. На кыргызском она выталкивала красную кнопку из
+              строки и саму шапку за край. С 640 до 768 кнопки нет совсем:
+              тут появляется красная, а обе в строку не встают. */}
           <Link
             href={personalHref}
-            className="hidden h-11 items-center gap-2 rounded-xs border border-border px-3 text-sm transition-colors hover:bg-surface min-[420px]:flex"
+            className="hidden h-11 items-center gap-2 rounded-xs border border-border px-3 text-sm transition-colors hover:bg-surface min-[420px]:flex sm:hidden md:flex"
             title={account ? account.name : personalLabel}
           >
             {account ? (
@@ -241,7 +245,7 @@ export default function Header({ dict, lang, account }: Props) {
             ) : (
               <Inbox className="h-4 w-4" aria-hidden="true" />
             )}
-            <span className="sr-only min-[1440px]:not-sr-only min-[1440px]:whitespace-nowrap">{personalLabel}</span>
+            <span className="sr-only">{personalLabel}</span>
           </Link>
 
           <Link

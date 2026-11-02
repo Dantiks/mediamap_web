@@ -64,6 +64,8 @@
 
   --color-signal: #b3122a;
   --color-signal-deep: #8d0e21;
+  /* Красный логотипа 7.13. Это знак, а не текст, поэтому свой токен, не signal. */
+  --color-logo: #e5213e;
 
   /* --- Виды нарушений -------------------------------------------------- */
   /* Красного тут нет намеренно: он занят действиями. Пока «язык вражды»
@@ -449,6 +451,7 @@ html[data-a11y-scheme="light"] {
   --color-deep-grey: #000000;
   --color-signal: #9e0019;
   --color-signal-deep: #6b0011;
+  --color-logo: #9e0019;
   --color-hate: #4a2d75;
   --color-disinfo: #133f58;
   --color-fraud: #663d05;
@@ -480,6 +483,7 @@ html[data-a11y-scheme="dark"] {
   --color-deep-grey: #ffd60a;
   --color-signal: #ffd60a;
   --color-signal-deep: #fff099;
+  --color-logo: #ffd60a;
   --color-hate: #c9b0ff;
   --color-disinfo: #85cdf2;
   --color-fraud: #f2bd66;

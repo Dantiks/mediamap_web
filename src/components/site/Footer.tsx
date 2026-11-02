@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import Logo from "./Logo";
 import type { Dictionary, Lang } from "@/lib/i18n";
 
 type Props = { dict: Dictionary; lang: Lang };
@@ -32,7 +33,7 @@ export default function Footer({ dict, lang }: Props) {
       <div className="mx-auto max-w-[1400px] px-4 py-5 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-x-10 gap-y-2 sm:flex-row sm:items-baseline sm:justify-between">
           <div>
-            <p className="font-display text-base font-medium">{dict.brand}</p>
+            <Logo label={dict.brand} className="h-7 w-auto text-ink" />
             <p className="mt-0.5 max-w-xs text-sm text-muted">
               {dict.brandTagline}
             </p>
