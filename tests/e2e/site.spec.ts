@@ -99,6 +99,7 @@ test.describe("мобильная ширина", () => {
     "/ru/search?q=" + encodeURIComponent("фейк"),
     "/ru/news",
     "/ru/analytics",
+    "/ru/map",
     "/ru/types",
     "/ru/account/login",
   ];

@@ -21,6 +21,7 @@ const en = {
   nav: {
     home: "Home",
     cases: "Cases",
+    map: "Map",
     types: "Types of violations",
     news: "Media digest",
     analytics: "Analytics",

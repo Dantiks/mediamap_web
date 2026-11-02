@@ -66,6 +66,7 @@ export default function Header({ dict, lang, account }: Props) {
 
   const primary = [
     { href: `/${lang}/cases`, label: dict.nav.cases },
+    { href: `/${lang}/map`, label: dict.nav.map },
     { href: `/${lang}/types`, label: dict.nav.types },
     { href: `/${lang}/analytics`, label: dict.nav.analytics },
     { href: `/${lang}/news`, label: dict.nav.news },

@@ -15,6 +15,19 @@ const sections = {
     executor: "Project implementer",
   },
 
+  mapPage: {
+    title: "Case map",
+    lead: "Where confirmed violations were spotted. Select a pin to read about the case.",
+    filterAll: "All",
+    filterLabel: "Filter by type",
+    search: "Search text, city, region",
+    open: "Read about the case",
+    approximate: "approximate, centre of the region",
+    listTitle: "Cases on the map",
+    empty: "No cases match this filter.",
+    withoutPlace: "{n} more have no location given; they are in the full list of cases.",
+  },
+
   analyticsPage: {
     title: "Analytics",
     lead:

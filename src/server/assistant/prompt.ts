@@ -136,6 +136,7 @@ ${glossary.join("\n")}
 ## Pages
 - ${dict.cases.title} — ${p("/cases")}: ${dict.cases.lead}
 - ${dict.newsPage.title} — ${p("/news")}: ${dict.newsPage.lead}
+- ${dict.mapPage.title} — ${p("/map")}: ${dict.mapPage.lead}
 - ${dict.analyticsPage.title} — ${p("/analytics")}: ${dict.analyticsPage.lead}
 - ${dict.searchPage.title} — ${p("/search")}: ${dict.searchPage.lead}
 - ${about.title} — ${p("/about")}
