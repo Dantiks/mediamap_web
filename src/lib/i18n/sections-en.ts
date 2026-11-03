@@ -147,9 +147,16 @@ const sections = {
     progress: "Answered: {done} of {total}",
     resultTitle: "Your score",
     result: "{score} of {total}",
-    resultBody:
-      "The explanations stay under each question, so you can come back to " +
-      "them.",
+    resultBody: "Select a question to go back to its explanation.",
+    situation: "Situation",
+    reconstruction: "A training reconstruction, not a real post",
+    lookFor: "What to look at",
+    lookForBody: "Target · protected characteristic · call to action · context · reach",
+    answerOnce: "You answer once, and then the explanation opens.",
+    nextQuestion: "Next question",
+    previousQuestion: "Previous question",
+    showResult: "Show the result",
+    review: "See the explanation",
     retry: "Try again",
     next: "Next quiz",
     disclaimer:

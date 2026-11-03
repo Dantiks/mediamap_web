@@ -56,21 +56,23 @@ export default async function QuizTestPage({
         {words.back}
       </Link>
 
+      {/* Вступление узкой колонкой, а сам тест — во всю ширину: ситуации
+          и вопросу нужны две колонки. */}
       <div className="mt-6 max-w-3xl">
         <p className="text-sm text-muted">{words.title}</p>
         <h1 className="mt-1 text-3xl sm:text-4xl">{test.title}</h1>
         <p className="mt-4 text-muted">{words.howBody}</p>
         {words.sourceNote ? <p className="mt-3">{words.sourceNote}</p> : null}
-
-        <Quiz
-          questions={test.questions}
-          words={words}
-          nextHref={next ? `/${lang}/quiz/${next.slug}` : null}
-          allHref={`/${lang}/quiz`}
-        />
-
-        <p className="mt-12 border-t border-line pt-6 text-sm text-muted">{words.disclaimer}</p>
       </div>
+
+      <Quiz
+        questions={test.questions}
+        words={words}
+        nextHref={next ? `/${lang}/quiz/${next.slug}` : null}
+        allHref={`/${lang}/quiz`}
+      />
+
+      <p className="mt-12 max-w-3xl border-t border-line pt-6 text-sm text-muted">{words.disclaimer}</p>
     </div>
   );
 }

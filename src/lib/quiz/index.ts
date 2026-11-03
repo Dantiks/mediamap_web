@@ -4,6 +4,7 @@ import ru from "./ru";
 import type { QuizQuestion, QuizTest } from "./types";
 
 export type { QuizQuestion, QuizTest } from "./types";
+export { questionParts, type QuestionParts } from "./parts";
 
 /*
   Тесты по языкам.

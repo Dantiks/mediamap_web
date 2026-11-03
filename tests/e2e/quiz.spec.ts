@@ -11,28 +11,36 @@ test("на списке шесть тестов на всех языках", asy
   }
 });
 
-test("прохождение: ответ фиксируется, после всех — балл", async ({ page }) => {
+test("прохождение: по одному заданию, ответ фиксируется, в конце балл", async ({ page }) => {
   await page.goto("/ru/quiz/criticism");
-  const questions = page.locator("main fieldset");
-  await expect(questions).toHaveCount(7);
+  const question = page.locator("main fieldset");
+  await expect(question).toHaveCount(1);
+  await expect(page.getByText("Задание 1 из 7")).toBeVisible();
 
   // Первое задание: выбираем первый вариант и смотрим пояснение.
-  const first = questions.nth(0);
-  await first.locator("input[type=radio]").nth(0).check();
-  const status = first.locator('[role="status"]');
+  await question.locator("label").nth(0).click();
+  const status = question.locator('[role="status"]');
   await expect(status).toContainText(/Верно|Неверно/);
   await expect(status).toContainText("Почему:");
 
   // Ответ не меняется после пояснения.
-  await first.locator("label").nth(1).click();
-  await expect(first.locator("input[type=radio]").nth(0)).toBeChecked();
+  await question.locator("label").nth(1).click();
+  await expect(question.locator("input[type=radio]").nth(0)).toBeChecked();
 
   for (let index = 1; index < 7; index += 1) {
-    await questions.nth(index).locator("label").nth(0).click();
+    await page.getByRole("button", { name: "Следующее задание" }).click();
+    await expect(page.getByText(`Задание ${index + 1} из 7`)).toBeVisible();
+    await page.locator("main fieldset label").nth(0).click();
   }
+  await page.getByRole("button", { name: "Показать результат" }).click();
   await expect(page.getByTestId("quiz-score")).toHaveText(/^\d из 7$/);
 
+  // Из итога можно вернуться к разбору задания.
+  await page.getByRole("button", { name: /Задание 3 из 7/ }).click();
+  await expect(page.locator("main fieldset [role=status]")).toContainText("Почему:");
+
   // «Пройти заново» сбрасывает ответы.
+  await page.getByRole("button", { name: "Показать результат" }).click();
   await page.getByRole("button", { name: "Пройти заново" }).click();
   await expect(page.getByTestId("quiz-score")).toHaveCount(0);
   await expect(page.locator("main input[type=radio]:checked")).toHaveCount(0);
@@ -44,20 +52,21 @@ test("все правильные ответы дают 7 из 7", async ({ page
   await page.goto("/ru/quiz/threats");
   const answers: number[] = [];
   for (let index = 0; index < 7; index += 1) {
-    const question = page.locator("main fieldset").nth(index);
-    await question.locator("label").nth(0).click();
+    if (index > 0) await page.getByRole("button", { name: "Следующее задание" }).click();
+    const labels = page.locator("main fieldset label");
+    await labels.nth(0).click();
     answers.push(
-      await question
-        .locator("label")
-        .evaluateAll((labels) => labels.findIndex((label) => label.className.includes("trust-high"))),
+      await labels.evaluateAll((list) => list.findIndex((label) => label.className.includes("trust-high"))),
     );
   }
   expect(answers.every((right) => right >= 0)).toBe(true);
 
   await page.reload();
   for (const [index, right] of answers.entries()) {
-    await page.locator("main fieldset").nth(index).locator("label").nth(right).click();
+    if (index > 0) await page.getByRole("button", { name: "Следующее задание" }).click();
+    await page.locator("main fieldset label").nth(right).click();
   }
+  await page.getByRole("button", { name: "Показать результат" }).click();
   await expect(page.getByTestId("quiz-score")).toHaveText("7 из 7");
 });
 

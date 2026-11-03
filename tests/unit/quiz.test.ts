@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { quizTest, quizTests, quizTranslated, shuffled } from "@/lib/quiz";
+import { questionParts, quizTest, quizTests, quizTranslated, shuffled } from "@/lib/quiz";
 import en from "@/lib/quiz/en";
 import ru from "@/lib/quiz/ru";
 
@@ -88,5 +88,32 @@ describe("quizTest", () => {
     expect(quizTranslated("ky")).toBe(false);
     expect(quizTranslated("ru")).toBe(true);
     expect(quizTranslated("en")).toBe(true);
+  });
+});
+
+describe("questionParts", () => {
+  it("вопрос — последнее предложение, цитата отдельно от подводки", () => {
+    const parts = questionParts(
+      "В посте утверждается: «Люди этой национальности по природе преступники, им нельзя сдавать жильё». Как точнее классифицировать высказывание?",
+    );
+    expect(parts.question).toBe("Как точнее классифицировать высказывание?");
+    expect(parts.lead).toBe("В посте утверждается:");
+    expect(parts.quote).toBe("«Люди этой национальности по природе преступники, им нельзя сдавать жильё»");
+  });
+
+  it("ситуация без одной цитаты остаётся текстом", () => {
+    const parts = questionParts("Фраза: «Эти чиновники лживы». Не указан защищённый признак. Какой вывод обоснован?");
+    expect(parts.quote).toBeNull();
+    expect(parts.situation).toBe("Фраза: «Эти чиновники лживы». Не указан защищённый признак.");
+  });
+
+  it("у каждого задания на обоих языках есть ситуация и вопрос", () => {
+    for (const tests of [ru, en]) {
+      for (const question of tests.flatMap((test) => test.questions)) {
+        const parts = questionParts(question.text);
+        expect(parts.situation.length).toBeGreaterThan(10);
+        expect(parts.question.endsWith("?")).toBe(true);
+      }
+    }
   });
 });
