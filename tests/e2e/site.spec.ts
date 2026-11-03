@@ -79,13 +79,6 @@ test.describe("поиск", () => {
   });
 });
 
-test("скрытый раздел «Проверь себя» отдаёт 404", async ({ page }) => {
-  for (const path of ["/ru/quiz", "/ru/quiz/criticism", "/ru/quiz/questions"]) {
-    const response = await page.goto(path);
-    expect(response?.status(), path).toBe(404);
-  }
-});
-
 test.describe("мобильная ширина", () => {
   // 360 — самый частый Android. /analytics раньше был шире 386 px.
   test.use({ viewport: { width: 360, height: 780 } });
@@ -101,6 +94,8 @@ test.describe("мобильная ширина", () => {
     "/ru/analytics",
     "/ru/map",
     "/ru/types",
+    "/ru/quiz",
+    "/ru/quiz/criticism",
     "/ru/account/login",
   ];
 
