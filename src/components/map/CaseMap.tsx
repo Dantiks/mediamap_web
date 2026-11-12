@@ -8,8 +8,8 @@ import type { LayerGroup, Map as LeafletMap } from "leaflet";
 
 import { formatDate } from "@/lib/format";
 import { violationText, type Dictionary, type Lang } from "@/lib/i18n";
-import { typeGlyph } from "@/lib/violation-icons";
-import { typeColor } from "@/lib/violation-types";
+import { faceMarkup, HEAD, TAIL } from "@/lib/violation-icons";
+import { typeText } from "@/lib/violation-types";
 import TypeGlyph from "./TypeGlyph";
 import type { MapCase } from "@/server/map-data";
 
@@ -27,21 +27,19 @@ import type { MapCase } from "@/server/map-data";
 const KG_CENTER: [number, number] = [41.3, 74.7];
 const KG_ZOOM = 7;
 
+// Оранжевый «дезинформации» на метке ярче, чем в тексте: метке хватает
+// контраста 3:1 для графики, а подпись того же цвета должна держать 4.5:1.
 const PIN_COLOR: Record<string, string> = {
   "hate-speech": "var(--color-hate)",
-  disinformation: "var(--color-disinfo)",
+  disinformation: "var(--color-pin-disinfo)",
   "digital-fraud": "var(--color-fraud)",
 };
 
-// Метка — капля из логотипа, внутри значок вида. Обводка и значок цветом
-// карточки, а не белым: в схеме «белым по чёрному» виды светлые, и белый
-// значок на них пропадал бы.
+// Метка — персонаж вида (violation-icons.ts). Черты цветом карточки, а не
+// белым: в схеме «белым по чёрному» виды светлые, и белое на них пропадало бы.
 const pinSvg = (slug: string) => {
   const color = PIN_COLOR[slug] ?? "var(--color-other)";
-  const glyph = typeGlyph(slug)
-    .map((d) => `<path d="${d}"/>`)
-    .join("");
-  return `<svg viewBox="0 0 32 42" width="32" height="42" aria-hidden="true"><path d="M16 40.5C12.5 32.5 3 27 3 16a13 13 0 0 1 26 0c0 11-9.5 16.5-13 24.5Z" fill="${color}" stroke="var(--color-surface)" stroke-width="1.5"/><g transform="translate(7.4 7.4) scale(0.72)" fill="none" stroke="var(--color-surface)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${glyph}</g></svg>`;
+  return `<svg viewBox="0 0 44 42" width="38" height="36" aria-hidden="true"><path d="${TAIL}" fill="${color}"/><circle cx="${HEAD.cx}" cy="${HEAD.cy}" r="${HEAD.r}" fill="${color}" stroke="var(--color-surface)" stroke-width="1.2"/>${faceMarkup(slug, color, "var(--color-surface)")}</svg>`;
 };
 
 const element = (tag: string, className: string, text?: string) => {
@@ -119,9 +117,9 @@ export default function CaseMap({ cases, types, dict, lang }: Props) {
         const icon = L.divIcon({
           className: "",
           html: pinSvg(item.typeSlug),
-          iconSize: [32, 42],
-          iconAnchor: [16, 41],
-          popupAnchor: [0, -36],
+          iconSize: [38, 36],
+          iconAnchor: [17, 36],
+          popupAnchor: [0, -32],
         });
 
         const popup = element("div", "w-64 space-y-2 text-sm");
@@ -201,7 +199,7 @@ export default function CaseMap({ cases, types, dict, lang }: Props) {
                 onClick={() => setActive(type.slug)}
                 className={chip(active === type.slug)}
               >
-                <TypeGlyph slug={type.slug} className={typeColor(type.slug)} />
+                <TypeGlyph slug={type.slug} className={typeText(type.slug)} />
                 {typeName(type.slug)}
                 <span className="text-xs tabular-nums opacity-70">
                   {cases.filter((item) => item.typeSlug === type.slug).length}
@@ -245,7 +243,7 @@ export default function CaseMap({ cases, types, dict, lang }: Props) {
                 <span className="flex items-baseline gap-2 text-base">
                   <TypeGlyph
                     slug={item.typeSlug}
-                    className={`mt-0.5 self-start ${typeColor(item.typeSlug)}`}
+                    className={`mt-0.5 self-start ${typeText(item.typeSlug)}`}
                   />
                   {item.headline ?? typeName(item.typeSlug)}
                 </span>

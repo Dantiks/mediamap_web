@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { typeGlyph } from "@/lib/violation-icons";
+import { faceMarkup, typeFace } from "@/lib/violation-icons";
 
-describe("typeGlyph", () => {
-  it("у каждого вида свой значок, неизвестный получает флажок", () => {
-    const kinds = ["hate-speech", "disinformation", "digital-fraud"].map((slug) => typeGlyph(slug).join());
-    expect(new Set(kinds).size).toBe(3);
-    expect(typeGlyph("nope")).toEqual(typeGlyph("other"));
-    expect(kinds).not.toContain(typeGlyph("nope").join());
+describe("typeFace", () => {
+  it("у каждого вида своё лицо, неизвестный получает спокойное", () => {
+    const faces = ["hate-speech", "disinformation", "digital-fraud"].map((slug) => JSON.stringify(typeFace(slug)));
+    expect(new Set(faces).size).toBe(3);
+    expect(typeFace("nope")).toEqual(typeFace("other"));
+    expect(faces).not.toContain(JSON.stringify(typeFace("nope")));
+  });
+
+  it("разметка для метки красит черты в два цвета", () => {
+    const markup = faceMarkup("disinformation", "A", "B");
+    expect(markup).toContain('stroke="A"');
+    expect(markup).toContain('fill="B"');
   });
 });

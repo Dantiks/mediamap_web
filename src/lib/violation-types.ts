@@ -23,3 +23,13 @@ const BORDERS: Record<string, string> = {
 
 /** Класс рамки того же цвета — для плашки вердикта. */
 export const typeBorder = (slug: string): string => BORDERS[slug] ?? "border-other";
+
+// Цвет текста — для значка-лица: голова красится currentColor.
+const TEXTS: Record<string, string> = {
+  "hate-speech": "text-hate",
+  disinformation: "text-disinfo",
+  "digital-fraud": "text-fraud",
+};
+
+/** Класс цвета текста вида — для лица в фильтре и списке. */
+export const typeText = (slug: string): string => TEXTS[slug] ?? "text-other";

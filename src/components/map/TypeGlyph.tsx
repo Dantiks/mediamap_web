@@ -1,28 +1,31 @@
-import { typeGlyph } from "@/lib/violation-icons";
+import { HEAD, typeFace } from "@/lib/violation-icons";
 
-// Значок вида в квадрате его цвета — для фильтра и списка под картой.
-// Цвет квадрата задаёт класс снаружи (typeColor), значок рисуется цветом
-// карточки: в схеме «белым по чёрному» он становится чёрным на светлом.
+// Лицо вида без хвостика — для фильтра и списка под картой. Голова цвета
+// вида (класс fill-* снаружи), черты цветом карточки: в схеме «белым по
+// чёрному» они становятся чёрными на светлом. Рамка шире головы, чтобы
+// влез нос лжеца.
 
 export default function TypeGlyph({ slug, className }: { slug: string; className: string }) {
   return (
-    <span
-      aria-hidden="true"
-      className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-xs text-surface ${className}`}
-    >
-      <svg
-        viewBox="0 0 24 24"
-        className="h-3.5 w-3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={2.4}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        {typeGlyph(slug).map((d) => (
-          <path key={d} d={d} />
-        ))}
-      </svg>
-    </span>
+    <svg aria-hidden="true" viewBox="3 1 39.5 34" className={`h-5 w-6 shrink-0 ${className}`}>
+      <circle cx={HEAD.cx} cy={HEAD.cy} r={HEAD.r} fill="currentColor" />
+      {typeFace(slug).map((part, index) => {
+        const paint = part.paint === "face" ? "currentColor" : "var(--color-surface)";
+        if (part.kind === "dot")
+          return <ellipse key={index} cx={part.cx} cy={part.cy} rx={part.rx} ry={part.ry} fill={paint} />;
+        if (part.kind === "shape") return <path key={index} d={part.d} fill={paint} />;
+        return (
+          <path
+            key={index}
+            d={part.d}
+            fill="none"
+            stroke={paint}
+            strokeWidth={part.width}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        );
+      })}
+    </svg>
   );
 }
