@@ -33,6 +33,22 @@ describe("loadVideos", () => {
   });
 });
 
+describe("loadVideos на других языках", () => {
+  it("ролики есть на любой версии, свой язык первым", async () => {
+    await db.video.create({
+      data: { title: "Русский", lang: "ru", key: "b.mp4", mime: "video/mp4", size: 10, position: -5 },
+    });
+    expect((await loadVideos("en")).map((row) => row.title)).toEqual(["Русский", "Свой ролик", "Подкаст"]);
+    const ru = await loadVideos("ru");
+    expect(ru.map((row) => [row.title, row.lang])).toEqual([
+      ["Русский", "ru"],
+      ["Свой ролик", "ky"],
+      ["Подкаст", "ky"],
+    ]);
+    expect((await loadVideos("ky")).map((row) => row.title)).toEqual(["Свой ролик", "Подкаст", "Русский"]);
+  });
+});
+
 describe("dropVideo", () => {
   it("у ролика с YouTube не трогает хранилище", async () => {
     const { remove } = await import("@/server/storage");

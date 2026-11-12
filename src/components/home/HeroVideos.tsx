@@ -259,6 +259,9 @@ export default function HeroVideos({ dict, lang, videos }: Props) {
         </div>
 
         <p className="mt-4 line-clamp-2 text-base">{video.title}</p>
+        {video.lang === lang ? null : (
+          <p className="mt-1 text-sm text-muted">{words.videoLanguage[video.lang]}</p>
+        )}
 
         {videos.length > 1 ? (
           <div className="mt-3 flex items-center justify-between gap-4">

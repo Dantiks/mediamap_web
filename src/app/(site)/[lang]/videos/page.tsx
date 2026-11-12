@@ -52,7 +52,7 @@ export default async function VideosPage({
       ) : (
         /* Та же сетка, что и на главной, но без заголовка раздела и без
            прокрутки вбок: здесь ролики переносятся по строкам. */
-        <VideoShelf dict={dict} videos={videos} layout="grid" />
+        <VideoShelf dict={dict} videos={videos} lang={lang} layout="grid" />
       )}
     </div>
   );

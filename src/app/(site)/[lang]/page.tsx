@@ -51,7 +51,7 @@ export default async function HomePage({
   const data = await getHomeData();
   await localizeHeadlines(data.cases, lang);
 
-  // Ролики у каждого языка свои: озвученный ролик не переведёшь.
+  // Ролики всех языков, свой язык первым (см. loadVideos).
   // На первый экран — только свои файлы: карусель запускает ролик сама,
   // а часовой подкаст с YouTube так не показывают. Он лежит в «Видео».
   const videos = await loadVideos(lang, 12, true);

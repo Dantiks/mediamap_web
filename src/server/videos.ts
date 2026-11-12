@@ -31,15 +31,18 @@ export type VideoRow = {
   wide: boolean;
   /** Ролик с YouTube: играет их плеер, файла у нас нет. */
   youtube: string | null;
+  /** Язык ролика — карточка подписывает его, если он не язык страницы. */
+  lang: Lang;
 };
 
 /*
-  Ролики для главной того языка, на котором её читают.
+  Ролики для страницы на языке `lang`.
 
-  Переводить ролик нельзя — он озвучен, — поэтому у каждого языка свои
-  файлы. Нет кыргызских роликов, значит на кыргызской главной блока просто
-  не будет: показывать русский ролик вместо кыргызского хуже, чем не
-  показывать ничего.
+  Показываем все ролики на любой версии сайта: сначала на языке страницы,
+  за ними остальные, и карточка подписывает их язык. Раньше у каждой версии
+  были только свои, и на кыргызской и английской главной роликов не было
+  вовсе — редакция решила, что пусть лучше русский ролик с пометкой
+  «на русском», чем пусто (ноябрь 2026).
 */
 export async function loadVideos(
   lang: Lang,
@@ -51,12 +54,11 @@ export async function loadVideos(
     where: {
       published: true,
       draft: false,
-      lang,
       ...(filesOnly ? { youtubeId: null } : {}),
     },
     orderBy: [{ position: "asc" }, { createdAt: "desc" }],
-    take: limit,
     select: {
+      lang: true,
       id: true,
       title: true,
       seconds: true,
@@ -67,8 +69,13 @@ export async function loadVideos(
     },
   });
 
-  return rows.map(({ posterKey, width, height, youtubeId, ...rest }) => ({
+  // Свой язык вперёд; внутри языка — порядок из панели. sort устойчивый,
+  // поэтому порядок по position сохраняется.
+  const ordered = rows.sort((a, b) => Number(a.lang !== lang) - Number(b.lang !== lang)).slice(0, limit);
+
+  return ordered.map(({ posterKey, width, height, youtubeId, lang: videoLang, ...rest }) => ({
     ...rest,
+    lang: isReadyLanguage(videoLang) ? videoLang : lang,
     youtube: youtubeId,
     hasPoster: posterKey !== null,
     // Размеров нет у роликов, снятых без ffprobe: считаем их вертикальными,

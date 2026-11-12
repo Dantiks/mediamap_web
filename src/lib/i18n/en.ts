@@ -81,6 +81,8 @@ const en = {
     videoLead: "Short clips: how to spot a scam, a fake and hate speech.",
     videoPlay: "Watch",
     videoAll: "All clips",
+    /* Подпись ролика не на языке страницы. */
+    videoLanguage: { ru: "in Russian", ky: "in Kyrgyz", en: "in English" },
     videoSoundOn: "Turn the sound on",
     videoSoundOff: "Turn the sound off",
     videoPause: "Pause",
@@ -612,8 +614,8 @@ const en = {
     title: "Clips",
     lead:
       "Short explainers: how to spot a scam, a fake and hate speech. Clips " +
-      "differ by language — a voiced clip cannot be translated.",
-    empty: "No clips in this language yet.",
+      "in English come first, then clips in other languages.",
+    empty: "No clips yet.",
   },
 
   a11y: {

@@ -24,8 +24,8 @@ import type { VideoRow } from "@/server/videos";
 type Props = {
   dict: Dictionary;
   videos: VideoRow[];
-  /** Язык нужен только ссылке «все ролики» — на самой этой странице её нет. */
-  lang?: Lang;
+  /** Язык страницы: для ссылки «все ролики» и подписи чужого языка. */
+  lang: Lang;
   /*
     Как раскладывать. На главной это лента с прокруткой вбок, на странице
     роликов — обычная сетка с переносом: там ролики не идут приложением к
@@ -44,7 +44,12 @@ export default function VideoShelf({ dict, videos, lang, layout = "shelf" }: Pro
     <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4">
       {videos.map((video) => (
         <li key={video.id}>
-          <Card video={video} title={video.title} playLabel={words.videoPlay} />
+          <Card
+            video={video}
+            title={video.title}
+            playLabel={words.videoPlay}
+            note={video.lang === lang ? null : words.videoLanguage[video.lang]}
+          />
         </li>
       ))}
     </ul>
@@ -60,15 +65,13 @@ export default function VideoShelf({ dict, videos, lang, layout = "shelf" }: Pro
 
           {/* Полка показывает не всё: ролики кончаются там же, где экран.
               Ссылка ведёт туда, где они лежат целиком. */}
-          {lang ? (
-            <Link
-              href={`/${lang}/videos`}
-              className="inline-flex items-center gap-1 text-base text-signal hover:underline"
-            >
-              {words.videoAll}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-          ) : null}
+          <Link
+            href={`/${lang}/videos`}
+            className="inline-flex items-center gap-1 text-base text-signal hover:underline"
+          >
+            {words.videoAll}
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
 
         <p className="mt-2 max-w-prose text-muted">{words.videoLead}</p>
@@ -92,6 +95,7 @@ export default function VideoShelf({ dict, videos, lang, layout = "shelf" }: Pro
                 video={video}
                 title={video.title}
                 playLabel={words.videoPlay}
+                note={video.lang === lang ? null : words.videoLanguage[video.lang]}
               />
             </li>
           ))}
@@ -105,10 +109,13 @@ function Card({
   video,
   title,
   playLabel,
+  note,
 }: {
   video: VideoRow;
   title: string;
   playLabel: string;
+  /** «на русском» — когда ролик не на языке страницы. */
+  note: string | null;
 }) {
   const [playing, setPlaying] = useState(false);
   const player = useRef<HTMLVideoElement>(null);
@@ -182,9 +189,9 @@ function Card({
 
       <figcaption className="mt-3 text-base">
         {title}
-        {video.seconds ? (
+        {video.seconds || note ? (
           <span className="mt-1 block text-sm text-muted tabular-nums">
-            {clock(video.seconds)}
+            {[video.seconds ? clock(video.seconds) : null, note].filter(Boolean).join(" · ")}
           </span>
         ) : null}
       </figcaption>
