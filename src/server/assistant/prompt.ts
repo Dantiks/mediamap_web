@@ -139,7 +139,6 @@ ${glossary.join("\n")}
 - ${dict.mapPage.title} — ${p("/map")}: ${dict.mapPage.lead}
 - ${dict.analyticsPage.title} — ${p("/analytics")}: ${dict.analyticsPage.lead}
 - ${dict.searchPage.title} — ${p("/search")}: ${dict.searchPage.lead}
-- ${dict.quizPage.title} — ${p("/quiz")}: ${dict.quizPage.lead}
 - ${about.title} — ${p("/about")}
 - ${dict.contactsPage.title} — ${p("/contacts")}: ${dict.contactsPage.lead}
   Telegram: ${CONTACTS.telegram}; e-mail: ${CONTACTS.email}; ${dict.contactsPage.phoneTitle}: ${CONTACTS.phone}`;
