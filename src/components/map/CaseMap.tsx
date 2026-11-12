@@ -8,7 +8,9 @@ import type { LayerGroup, Map as LeafletMap } from "leaflet";
 
 import { formatDate } from "@/lib/format";
 import { violationText, type Dictionary, type Lang } from "@/lib/i18n";
+import { typeGlyph } from "@/lib/violation-icons";
 import { typeColor } from "@/lib/violation-types";
+import TypeGlyph from "./TypeGlyph";
 import type { MapCase } from "@/server/map-data";
 
 /*
@@ -31,8 +33,16 @@ const PIN_COLOR: Record<string, string> = {
   "digital-fraud": "var(--color-fraud)",
 };
 
-const pinSvg = (color: string) =>
-  `<svg viewBox="0 0 28 38" width="28" height="38" aria-hidden="true"><path d="M14 37C10 28 1 22 1 13a13 13 0 0 1 26 0c0 9-9 15-13 24Z" fill="${color}" stroke="#fff" stroke-width="1.5"/><circle cx="14" cy="13" r="5" fill="#fff"/></svg>`;
+// Метка — капля из логотипа, внутри значок вида. Обводка и значок цветом
+// карточки, а не белым: в схеме «белым по чёрному» виды светлые, и белый
+// значок на них пропадал бы.
+const pinSvg = (slug: string) => {
+  const color = PIN_COLOR[slug] ?? "var(--color-other)";
+  const glyph = typeGlyph(slug)
+    .map((d) => `<path d="${d}"/>`)
+    .join("");
+  return `<svg viewBox="0 0 32 42" width="32" height="42" aria-hidden="true"><path d="M16 40.5C12.5 32.5 3 27 3 16a13 13 0 0 1 26 0c0 11-9.5 16.5-13 24.5Z" fill="${color}" stroke="var(--color-surface)" stroke-width="1.5"/><g transform="translate(7.4 7.4) scale(0.72)" fill="none" stroke="var(--color-surface)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${glyph}</g></svg>`;
+};
 
 const element = (tag: string, className: string, text?: string) => {
   const node = document.createElement(tag);
@@ -108,10 +118,10 @@ export default function CaseMap({ cases, types, dict, lang }: Props) {
       for (const item of visible) {
         const icon = L.divIcon({
           className: "",
-          html: pinSvg(PIN_COLOR[item.typeSlug] ?? "var(--color-other)"),
-          iconSize: [28, 38],
-          iconAnchor: [14, 37],
-          popupAnchor: [0, -34],
+          html: pinSvg(item.typeSlug),
+          iconSize: [32, 42],
+          iconAnchor: [16, 41],
+          popupAnchor: [0, -36],
         });
 
         const popup = element("div", "w-64 space-y-2 text-sm");
@@ -191,10 +201,7 @@ export default function CaseMap({ cases, types, dict, lang }: Props) {
                 onClick={() => setActive(type.slug)}
                 className={chip(active === type.slug)}
               >
-                <span
-                  className={`h-2 w-2 rounded-full ${typeColor(type.slug)}`}
-                  aria-hidden="true"
-                />
+                <TypeGlyph slug={type.slug} className={typeColor(type.slug)} />
                 {typeName(type.slug)}
                 <span className="text-xs tabular-nums opacity-70">
                   {cases.filter((item) => item.typeSlug === type.slug).length}
@@ -236,9 +243,9 @@ export default function CaseMap({ cases, types, dict, lang }: Props) {
                 className="block py-4 transition-colors hover:bg-line/40"
               >
                 <span className="flex items-baseline gap-2 text-base">
-                  <span
-                    className={`mt-1.5 h-2 w-2 shrink-0 self-start rounded-full ${typeColor(item.typeSlug)}`}
-                    aria-hidden="true"
+                  <TypeGlyph
+                    slug={item.typeSlug}
+                    className={`mt-0.5 self-start ${typeColor(item.typeSlug)}`}
                   />
                   {item.headline ?? typeName(item.typeSlug)}
                 </span>
