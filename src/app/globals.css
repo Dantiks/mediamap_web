@@ -67,6 +67,13 @@
   /* Красный логотипа 7.13. Это знак, а не текст, поэтому свой токен, не signal. */
   --color-logo: #e5213e;
 
+  /* Фонд «Медиа Консалт» — цвета его логотипа: тёмно-красный и чёрный.
+     Только на странице фонда (/media-consult). Белый на fund — 8,6:1,
+     fund на белом — столько же: годится и для текста, и для плашек. */
+  --color-fund: #9c0000;
+  --color-fund-deep: #6e0000;
+  --color-fund-ink: #141414;
+
   /* --- Виды нарушений -------------------------------------------------- */
   /* Красный, оранжевый и тёмно-серый — выбор редакции вместе с персонажами
      на карте (ноябрь 2026). Раньше красного тут не было: он занят действиями
@@ -456,6 +463,9 @@ html[data-a11y-scheme="light"] {
   --color-signal: #9e0019;
   --color-signal-deep: #6b0011;
   --color-logo: #9e0019;
+  --color-fund: #9e0019;
+  --color-fund-deep: #6b0011;
+  --color-fund-ink: #000000;
   --color-hate: #a30018;
   --color-disinfo: #8a3a00;
   --color-pin-disinfo: #8a3a00;
@@ -489,6 +499,9 @@ html[data-a11y-scheme="dark"] {
   --color-signal: #ffd60a;
   --color-signal-deep: #fff099;
   --color-logo: #ffd60a;
+  --color-fund: #ffd60a;
+  --color-fund-deep: #fff099;
+  --color-fund-ink: #000000;
   --color-hate: #ff9a9a;
   --color-disinfo: #ffb870;
   --color-pin-disinfo: #ffb870;

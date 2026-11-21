@@ -43,6 +43,7 @@ const en = {
     menu: "Menu",
     close: "Close",
     videos: "Videos",
+    mediaConsult: "Media Consult",
   },
 
   home: {
@@ -617,6 +618,39 @@ const en = {
       "in English come first, then clips in other languages.",
     empty: "No clips yet.",
   },
+  mediaConsultPage: {
+    title: "Media Consult",
+    fundName: "Foundation for the Development of Media Consulting in Central Asia",
+    lead:
+      "The foundation that created and runs MediaMap. Here are its " +
+      "projects: what was done, photos and materials.",
+    aboutTitle: "About the foundation",
+    projectsTitle: "Projects",
+    projectsEmpty: "Projects are coming soon.",
+    ongoing: "Ongoing",
+    teamTitle: "Team",
+    contactsTitle: "Contacts",
+    email: "Email",
+    phone: "Phone",
+    address: "Address",
+    allProjects: "All foundation projects",
+    region: "Where",
+    dates: "Dates",
+    partners: "Donor and partners",
+    photosTitle: "Photos",
+    videosTitle: "Videos",
+    filesTitle: "Materials",
+    linksTitle: "Links",
+    download: "Download",
+    openPhoto: "Open photo",
+    close: "Close",
+    previous: "Previous photo",
+    next: "Next photo",
+    photoOf: "Photo {n} of {total}",
+    draft: "Draft — visitors cannot see this page",
+    shownIn: { ru: "in Russian", ky: "in Kyrgyz", en: "in English" },
+  },
+
 
   a11y: {
     skipToContent: "Skip to content",

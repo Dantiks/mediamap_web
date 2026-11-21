@@ -16,6 +16,7 @@ export default function Footer({ dict, lang }: Props) {
     { href: `/${lang}/analytics`, label: dict.nav.analytics },
     { href: `/${lang}/news`, label: dict.nav.news },
     { href: `/${lang}/about`, label: dict.nav.about },
+    { href: `/${lang}/media-consult`, label: dict.nav.mediaConsult },
     { href: `/${lang}/contacts`, label: dict.nav.contacts },
     { href: "/admin", label: dict.footer.admin },
   ];

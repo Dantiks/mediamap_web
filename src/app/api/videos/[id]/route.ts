@@ -3,6 +3,7 @@ import { Readable } from "node:stream";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { db } from "@/lib/db";
+import { parseRange } from "@/lib/http-range";
 import { filePath } from "@/server/storage";
 
 /*
@@ -73,21 +74,4 @@ export async function GET(request: NextRequest, { params }: Params) {
   return new NextResponse(stream, {
     headers: size ? { ...common, "Content-Length": String(size) } : common,
   });
-}
-
-/** Разбирает заголовок Range. null — его нет или он кривой: отдадим целиком. */
-function parseRange(
-  header: string | null,
-  size: number,
-): { start: number; end: number } | null {
-  const match = header?.match(/^bytes=(\d*)-(\d*)$/);
-  if (!match) return null;
-
-  const [, from, to] = match;
-  // «bytes=-500» — последние 500 байт, так тоже просят.
-  const start = from ? Number.parseInt(from, 10) : Math.max(0, size - Number.parseInt(to, 10));
-  const end = from && to ? Number.parseInt(to, 10) : size - 1;
-
-  if (Number.isNaN(start) || Number.isNaN(end) || start > end || start >= size) return null;
-  return { start, end: Math.min(end, size - 1) };
 }

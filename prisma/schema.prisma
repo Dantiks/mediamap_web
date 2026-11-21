@@ -694,3 +694,119 @@ model QuizQuestion {
   @@index([published, position])
   @@map("quiz_questions")
 }
+
+/// Проект фонда «Медиа Консалт» — ОФ «Фонд развития медиаконсалтинга в ЦА»,
+/// который ведёт MediaMap. Страница /media-consult рассказывает, что фонд
+/// сделал, с фотографиями и файлами.
+///
+/// Тексты хранятся объектом JSON по языкам: {"ru": "…", "ky": "…", "en": "…"}.
+/// Переводит редакция руками, машинного перевода здесь нет — так решил фонд
+/// (ноябрь 2026). Обязателен русский; на незаполненном языке посетитель
+/// видит русский текст с пометкой. Объект, а не колонка на язык: когда
+/// откроются узбекская и казахская версии, схему трогать не придётся.
+model FundProject {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String  @default("{}")
+  /// Донор и партнёры — одним текстом, как пишут в отчётах.
+  partners    String  @default("{}")
+  /// Где проходил: область, город.
+  region      String  @default("{}")
+
+  /// Сроки. Без конца и с ongoing — проект идёт сейчас.
+  startDate DateTime?
+  endDate   DateTime?
+  ongoing   Boolean   @default(false)
+
+  /// JSON-массив ссылок: [{"url": "…", "label": "…"}].
+  links String @default("[]")
+
+  /// Обложка карточки — один из файлов проекта. Пусто — первая фотография.
+  coverId String?
+
+  /// Черновик виден только в панели.
+  published Boolean @default(false)
+
+  files FundFile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@map("fund_projects")
+}
+
+/// Файл проекта фонда: фотография, видео или документ.
+///
+/// Все файлы опубликованного проекта видны посетителям — так решил фонд,
+/// внутренних файлов здесь нет. Хранится сам файл и, для фотографий,
+/// уменьшенные копии: снимок с телефона весит мегабайты, и галерея из
+/// двадцати таких не загрузилась бы.
+model FundFile {
+  id String @id @default(cuid())
+
+  projectId Int
+  project   FundProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  /// IMAGE | VIDEO | DOCUMENT — см. src/lib/fund-rules.ts.
+  kind String
+  /// Тип выводим сами из расширения, присланному браузером не верим.
+  mime String
+  size Int
+  /// Имя, с которым файл пришёл. С ним он и скачивается.
+  name String
+  key  String
+
+  /// Копия для галереи (до 1600 px) и миниатюра (до 640 px). Только у
+  /// фотографий; у видео previewKey — кадр-обложка.
+  previewKey String?
+  thumbKey   String?
+  width      Int?
+  height     Int?
+
+  /// Подпись по языкам, JSON. Пусто — показываем имя файла.
+  caption String @default("{}")
+
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId, position])
+  @@map("fund_files")
+}
+
+/// Человек из команды фонда.
+model FundMember {
+  id Int @id @default(autoincrement())
+  /// Имя и должность — по языкам, JSON: латиницей имя пишут иначе.
+  name String
+  role String @default("{}")
+
+  photoKey String?
+
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@map("fund_members")
+}
+
+/// Остальное на странице фонда: текст «О фонде», логотип, контакты.
+/// Одна строка с id = 1.
+model FundProfile {
+  id Int @id @default(1)
+
+  about   String @default("{}")
+  address String @default("{}")
+  email   String?
+  phone   String?
+  /// JSON-массив ссылок на соцсети и сайт: [{"url": "…", "label": "…"}].
+  links   String @default("[]")
+
+  /// Загруженный логотип. Пусто — показываем тот, что лежит в public.
+  logoKey String?
+
+  updatedAt DateTime @updatedAt
+
+  @@map("fund_profile")
+}

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
+import { mkdir, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 /*
@@ -32,6 +32,35 @@ export async function put(data: Buffer, ext: string): Promise<string> {
   const target = path.join(ROOT, key);
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, data);
+  return key;
+}
+
+/*
+  Недогруженные файлы.
+
+  Большой файл приезжает кусками (см. src/app/api/admin/fund/upload), и
+  куски копятся во временном файле внутри того же хранилища — тогда
+  готовый файл переезжает на место переименованием, а не копированием
+  ста мегабайт.
+*/
+const TEMP = "tmp";
+
+/** Путь к временному файлу загрузки. id — проверенный UUID, не имя из запроса. */
+export const tempFile = (id: string): string => {
+  if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error(`Плохой номер загрузки: ${id}`);
+  return resolve(`${TEMP}/${id}.part`);
+};
+
+export async function ensureTempDir(): Promise<void> {
+  await mkdir(resolve(TEMP), { recursive: true });
+}
+
+/** Переносит догруженный временный файл в хранилище и возвращает ключ. */
+export async function adopt(temp: string, ext: string): Promise<string> {
+  const key = makeKey(ext);
+  const target = resolve(key);
+  await mkdir(path.dirname(target), { recursive: true });
+  await rename(temp, target);
   return key;
 }
 

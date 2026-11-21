@@ -29,6 +29,7 @@ const LINKS = [
   { href: "/admin/news", label: "Дайджест" },
   { href: "/admin/videos", label: "Видео" },
   { href: "/admin/quiz", label: "Проверь себя" },
+  { href: "/admin/fund", label: "Медиа Консалт" },
   { href: "/admin/detectors", label: "Сервисы проверки" },
   { href: "/admin/texts", label: "Тексты сайта" },
 ];

@@ -88,6 +88,8 @@ export default function Header({ dict, lang, account }: Props) {
     { href: `/${lang}/glossary`, label: dict.nav.glossary },
     // «Проверь себя» временно скрыт, см. app/(site)/[lang]/quiz/layout.tsx.
     { href: `/${lang}/about`, label: dict.nav.about },
+    // Фонд, который ведёт проект, — рядом с «О проекте» (ноябрь 2026).
+    { href: `/${lang}/media-consult`, label: dict.nav.mediaConsult },
     { href: `/${lang}/contacts`, label: dict.nav.contacts },
   ];
 
